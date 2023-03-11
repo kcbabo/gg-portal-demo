@@ -1,0 +1,25 @@
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: petstore-rt
+  namespace: gloo-mesh-gateways
+spec:
+  hosts:
+  - www.example.com
+  virtualGateways:
+  - name: istio-ingressgateway
+    namespace: gloo-mesh-gateways
+  http:
+  - name: petstore-api
+    labels:
+      route: petstore-api
+    matchers:
+    - uri:
+        prefix: /pet
+    forwardTo:
+      destinations:
+      - ref:
+          name: pets-rest-api
+          namespace: default
+        port:
+          number: 5000

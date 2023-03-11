@@ -1,0 +1,25 @@
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: portal-example-com
+  namespace: gloo-mesh
+spec:
+  hosts:
+  - portal.example.com
+  virtualGateways:
+  - name: istio-ingressgateway
+    namespace: gloo-mesh-gateways
+  http:
+  - name: portal-api
+    labels:
+      route: portal-api
+    matchers:
+    - uri:
+        prefix: /
+    forwardTo:
+      destinations:
+      - ref:
+          name: gloo-mesh-portal-server
+          namespace: gloo-mesh
+        port:
+          number: 8080

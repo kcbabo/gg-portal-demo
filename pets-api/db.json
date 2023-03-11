@@ -1,0 +1,53 @@
+{
+"pet" : 
+[
+  {
+    "id": 1,
+    "name": "Barky",
+    "photoUrls": [
+      "image1.jpg"
+    ],
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "status": "pending"
+  },
+  {
+    "id": 2,
+    "name": "Purrsy",
+    "photoUrls": [
+      "image1.jpg"
+    ],
+    "category": {
+      "id": 2,
+      "name": "Cats"
+    },
+    "status": "available"
+  },
+  {
+    "id": 3,
+    "name": "Joe",
+    "photoUrls": [
+      "image1.jpg"
+    ],
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "status": "available"
+  },
+  {
+    "id": 4,
+    "name": "Captain Salty",
+    "photoUrls": [
+      "image1.jpg"
+    ],
+    "category": {
+      "id": 2,
+      "name": "Cats"
+    },
+    "status": "pending"
+  }
+]
+}

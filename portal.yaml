@@ -1,0 +1,21 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: Portal
+metadata:
+  name: petstore-portal
+  namespace: gloo-mesh
+spec:
+  usagePlans:
+    - name: bronze
+      displayName: "Bronze Plan"
+      description: "A basic usage plan"
+    - name: silver
+      displayName: "Silver Plan"
+      description: "A better usage plan"
+    - name: gold
+      displayName: "Gold Plan"
+      description: "The best usage plan!"
+  apis:
+    - routeTable:
+        name: openapi-example
+        namespace: istio-gateway-ns
+        cluster: cluster-1

@@ -1,0 +1,15 @@
+apiVersion: security.policy.gloo.solo.io/v2
+kind: CORSPolicy
+metadata:
+  name: dev-portal-cors
+  namespace: gloo-mesh
+spec:
+  applyToRoutes:
+  - route:
+      labels:
+        route: portal-api
+  config:
+    allowMethods:
+    - GET
+    allowOrigins:
+    - exact: http://localhost:4000

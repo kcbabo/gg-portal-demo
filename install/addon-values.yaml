@@ -1,0 +1,16 @@
+rate-limiter:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+ext-auth-service:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+glooMeshAgent:
+  enabled: false
+glooMeshPortalServer:
+  enabled: false

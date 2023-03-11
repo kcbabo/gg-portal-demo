@@ -1,0 +1,81 @@
+# Name of the management cluster
+global:
+  cluster: gg-demo-single
+mgmtClusterName: gg-demo-single
+# Install the Gloo agent alongside the management server,
+# such as to run the management cluster also as a workload cluster in a single-cluster setup
+registerMgmtPlane:
+  enabled: true
+#  cluster: gg-demo-single
+#  ext-auth-service:
+#    enabled: true
+#  rate-limiter:
+#    enabled: true
+  # Configuration for managed Istio control plane and gateway installations by using the Istio Lifecycle Manager
+  managedInstallations:
+    enabled: true
+    controlPlane:
+      enabled: true
+      installations:
+      - clusters:
+        - defaultRevision: true
+          name: gg-demo-single
+        revision: 1-16-2
+        istioOperatorSpec:
+          hub: us-docker.pkg.dev/gloo-mesh/istio-7a97385594af
+          tag: 1.16.2-solo
+          components:
+            pilot:
+              k8s:
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 128Mi
+    northSouthGateways:
+    - enabled: true
+      name: istio-ingressgateway
+      installations:
+      - clusters:
+        - activeGateway: true
+          name: gg-demo-single
+        gatewayRevision: 1-16-2
+        istioOperatorSpec:
+          hub: us-docker.pkg.dev/gloo-mesh/istio-7a97385594af
+          tag: 1.16.2-solo
+          components:
+            ingressGateways:
+            - enabled: true
+              name: istio-ingressgateway
+              namespace: gloo-mesh-gateways
+              tag: 1.16.2-solo
+              k8s:
+                resources:
+                  requests:
+                    cpu: 64m
+                    memory: 64Mi
+glooMeshMgmtServer:
+  resources:
+    requests:
+      cpu: 64m
+      memory: 64Mi
+glooMeshUi:
+  resources:
+    requests:
+      cpu: 64m
+      memory: 64Mi
+  sidecars:
+    console:
+      resources:
+        requests:
+          cpu: 64m
+          memory: 64Mi
+    envoy:
+      resources:
+        requests:
+          cpu: 64m
+          memory: 64Mi
+glooMeshRedis:
+  resources:
+    requests:
+      cpu: 64m
+      memory: 64Mi
