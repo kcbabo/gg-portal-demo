@@ -1,11 +1,11 @@
 apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
-  name: www-example-com
+  name: tracks-rt
   namespace: gloo-mesh-gateways
 spec:
   hosts:
-  - www.example.com
+  - api.example.com
   virtualGateways:
   - name: istio-ingressgateway
     namespace: gloo-mesh-gateways
@@ -13,16 +13,16 @@ spec:
     title: Catstronauts REST API
     description: REST API for Catstronauts to retrieve data for tracks, authors and modules.
   http:
-  - name: example-api
+  - name: tracks-api
     labels:
-      route: example-api
+      route: tracks-api
     matchers:
     - uri:
         prefix: /
     forwardTo:
       destinations:
       - ref:
-          name: rest-example
+          name: tracks-rest-api
           namespace: default
         port:
           number: 5000

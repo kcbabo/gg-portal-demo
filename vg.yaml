@@ -9,8 +9,8 @@ spec:
         number: 80
       http: {}
       allowedRouteTables:
-        - host: 'www.example.com'
-        - host: 'portal.example.com'
+        - host: 'api.example.com'
+        - host: 'developer.example.com'
   workloads:
   - selector:
       labels:

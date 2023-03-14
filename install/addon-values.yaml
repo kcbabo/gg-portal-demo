@@ -13,4 +13,4 @@ ext-auth-service:
 glooMeshAgent:
   enabled: false
 glooMeshPortalServer:
-  enabled: false
+  enabled: true

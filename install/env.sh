@@ -1,9 +1,7 @@
 #!/bin/bash
 
-export SCRIPT_DIR="$(cd "$(dirname "$0")" ; pwd)"
-export CONFIG_DIR="$(cd "$SCRIPT_DIR/config" ; pwd)"
-
-export VERSION_ID=2.3.0-beta1-2023-03-07-jhawley-view-schema-ee8abff73
+#export VERSION_ID=2.3.0-beta1-2023-03-07-jhawley-view-schema-ee8abff73
+export VERSION_ID=2.3.0-beta2-2023-03-13-main-d9695cf7a
 export GLOO_MESH_VERSION="v${VERSION_ID}"
 
 export REPO=us-docker.pkg.dev/gloo-mesh/istio-7a97385594af
@@ -18,5 +16,6 @@ export CLUSTER_CTX=cluster1
 export CLUSTER_REGION="us-central1"
 export CLUSTER_ZONE="us-central1-a"
 
-export DNS_NAME=www.example.com
+export GATEWAY_HOST=api.example.com
+export PORTAL_HOST=developer.example.com
 export GATEWAY_NAMESPACE=gloo-mesh-gateways

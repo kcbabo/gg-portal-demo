@@ -1,0 +1,33 @@
+apiVersion: v1
+items:
+- apiVersion: admin.gloo.solo.io/v2
+  kind: WorkspaceSettings
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: gloo-mesh-enterprise
+      meta.helm.sh/release-namespace: gloo-mesh
+    creationTimestamp: "2023-03-13T21:26:32Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: default
+    namespace: gloo-mesh
+    resourceVersion: "16797017"
+    uid: 4da71dfc-1e4e-4927-8f1c-11542ada6845
+  spec:
+    options:
+      federation:
+        enabled: false
+      serviceIsolation:
+        enabled: false
+  status:
+    generic:
+      observedGeneration: 1
+      state: ACCEPTED
+    workspace:
+      cluster: gg-demo-single
+      name: gg-demo-single
+      namespace: gloo-mesh
+kind: List
+metadata:
+  resourceVersion: ""

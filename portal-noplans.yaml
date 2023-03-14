@@ -2,16 +2,16 @@ apiVersion: apimanagement.gloo.solo.io/v2
 kind: Portal
 metadata:
   name: petstore-portal
-  namespace: gloo-mesh
+  namespace: gloo-mesh-addons
 spec:
   domains:
-    - "portal.example.com"
+    - "developer.example.com"
   portalBackendSelector:
     - selector:
         labels:
           app: gloo-mesh-portal-server
   apis:
     - routeTable:
-        name: www-example-com
+        name: tracks-rt
         namespace: gloo-mesh-gateways
         cluster: gg-demo-single

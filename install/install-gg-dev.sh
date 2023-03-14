@@ -20,33 +20,32 @@ ${MESHCTL_BIN} version
 
 ${MESHCTL_BIN} install \
   --namespace gloo-mesh \
-  --kubecontext $CLUSTER_CTX \
   --version "$GLOO_MESH_VERSION" \
   --chart-file $MESH_CHART_URL \
-  --chart-values-file "$CONFIG_DIR/helm-values-gke.yaml" \
+  --chart-values-file "helm-values.yaml" \
   --license $GLOO_GATEWAY_LICENSE_KEY
 
 helm install gloo-agent-addons $AGENT_CHART_URL \
   --namespace gloo-mesh-addons \
-  --values "$CONFIG_DIR/addon-values.yaml"
+  --values "addon-values.yaml"
 
 
 printf "\nWaiting for gloo-mesh-gateways namespace...\n"
-until kubectl --context "${CLUSTER_CTX}" get ns gloo-mesh-gateways &>/dev/null; do
+until kubectl get ns gloo-mesh-gateways &>/dev/null; do
   sleep 3
 done
 
 printf "Waiting for gateway deployment creation...\n"
-until kubectl --context "${CLUSTER_CTX}" get deployment -n gloo-mesh-gateways istio-ingressgateway-1-16 &>/dev/null; do
+until kubectl get deployment -n gloo-mesh-gateways istio-ingressgateway-1-16-2 &>/dev/null; do
   sleep 3
 done
 
 printf "Waiting for ingress gateway deployment to be ready, this might take a while...\n"
-kubectl rollout status deployment --context="${CLUSTER_CTX}" -n gloo-mesh-gateways istio-ingressgateway-1-16 --timeout=5m
+kubectl rollout status deployment -n gloo-mesh-gateways istio-ingressgateway-1-16-2 --timeout=5m
 printf "Ingress gateway deployment ready!\n\n"
 
 # Create gateway
-kubectl --context $CLUSTER_CTX apply -f - <<EOF
+kubectl apply -f - <<EOF
 apiVersion: networking.gloo.solo.io/v2
 kind: VirtualGateway
 metadata:
@@ -54,15 +53,12 @@ metadata:
   namespace: ${GATEWAY_NAMESPACE}
 spec:
   listeners:
-  - allowedRouteTables:
-    - host: www.example.com
-    http: {}
-    port:
-      number: 80
-    - host: www.example.com
-    http: {}
-    port:
-      number: 80
+    - port:
+        number: 80
+      http: {}
+      allowedRouteTables:
+        - host: "'${GATEWAY_HOST}'"
+        - host: "'${PORTAL_HOST}'"
   workloads:
   - selector:
       labels:
@@ -72,6 +68,6 @@ EOF
 
 sleep 3
 
-GW_IP=$(kubectl get svc --context $CLUSTER_CTX -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+GW_IP=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 printf "Ingress gateway IP: %s\n" $GW_IP
 echo "export GW_IP=$GW_IP"
