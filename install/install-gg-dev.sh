@@ -57,8 +57,8 @@ spec:
         number: 80
       http: {}
       allowedRouteTables:
-        - host: "'${GATEWAY_HOST}'"
-        - host: "'${PORTAL_HOST}'"
+        - host: ${GATEWAY_HOST}
+        - host: ${PORTAL_HOST}
   workloads:
   - selector:
       labels:
@@ -68,6 +68,6 @@ EOF
 
 sleep 3
 
-GW_IP=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-printf "Ingress gateway IP: %s\n" $GW_IP
-echo "export GW_IP=$GW_IP"
+GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+printf "Ingress gateway IP: %s\n" $GW_HOST
+echo "export GW_HOST=$GW_HOST"

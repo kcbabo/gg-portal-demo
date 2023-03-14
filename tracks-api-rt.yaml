@@ -2,7 +2,9 @@ apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
   name: tracks-rt
-  namespace: gloo-mesh-gateways
+  namespace: tracks
+  labels:
+     portal: demo-portal
 spec:
   hosts:
   - api.example.com
@@ -23,6 +25,6 @@ spec:
       destinations:
       - ref:
           name: tracks-rest-api
-          namespace: default
+          namespace: tracks
         port:
           number: 5000

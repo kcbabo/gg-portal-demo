@@ -1,3 +1,6 @@
+# Name of the management cluster
+global:
+  cluster: gg-demo-single
 rate-limiter:
   enabled: true
   resources:

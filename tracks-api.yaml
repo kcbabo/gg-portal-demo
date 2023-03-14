@@ -4,7 +4,7 @@ metadata:
   labels:
     app: tracks-rest-api
   name: tracks-rest-api
-  namespace: default
+  namespace: tracks
 spec:
   selector:
     matchLabels:
@@ -28,7 +28,7 @@ metadata:
   annotations:
     gloo.solo.io/scrape-openapi-source: /swagger.json
   name: tracks-rest-api
-  namespace: default
+  namespace: tracks
   labels:
     app: tracks-rest-api
 spec:

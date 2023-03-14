@@ -17,5 +17,5 @@ helm uninstall gloo-agent-addons --namespace gloo-mesh-addons
 
 sleep 10
 
-kubectl delete ns echo istio-system gloo-mesh gloo-mesh-addons gloo-mesh-gateways || true
+kubectl delete ns tracks istio-system gloo-mesh gloo-mesh-addons gloo-mesh-gateways || true
 

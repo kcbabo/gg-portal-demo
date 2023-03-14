@@ -5,13 +5,12 @@ metadata:
   namespace: gloo-mesh-addons
 spec:
   domains:
-    - "developer.example.com"
+    - developer.example.com
   portalBackendSelector:
     - selector:
         labels:
           app: gloo-mesh-portal-server
   apis:
     - routeTable:
-        name: tracks-rt
-        namespace: gloo-mesh-gateways
-        cluster: gg-demo-single
+        labels:
+           portal: demo-portal
