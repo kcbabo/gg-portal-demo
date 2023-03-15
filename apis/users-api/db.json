@@ -1,0 +1,35 @@
+{
+"user" : 
+[
+  {
+    "id": 10,
+    "username": "theUser",
+    "firstName": "John",
+    "lastName": "James",
+    "email": "john@email.com",
+    "password": "12345",
+    "phone": "12345",
+    "userStatus": 1
+  },
+  {
+    "id": 11,
+    "username": "anotherUser",
+    "firstName": "Stephanie",
+    "lastName": "Smith",
+    "email": "ssmith@email.com",
+    "password": "83838",
+    "phone": "12345",
+    "userStatus": 1
+  },
+  {
+    "id": 12,
+    "username": "guest",
+    "firstName": "Bill",
+    "lastName": "Guest",
+    "email": "bguest@email.com",
+    "password": "78644",
+    "phone": "12345",
+    "userStatus": 1
+  }
+]
+}

@@ -1,0 +1,97 @@
+{
+  "user" : 
+  [
+    {
+      "id": 10,
+      "username": "theUser",
+      "firstName": "John",
+      "lastName": "James",
+      "email": "john@email.com",
+      "password": "12345",
+      "phone": "12345",
+      "userStatus": 1
+    },
+    {
+      "id": 11,
+      "username": "anotherUser",
+      "firstName": "Stephanie",
+      "lastName": "Smith",
+      "email": "ssmith@email.com",
+      "password": "83838",
+      "phone": "12345",
+      "userStatus": 1
+    },
+    {
+      "id": 12,
+      "username": "guest",
+      "firstName": "Bill",
+      "lastName": "Guest",
+      "email": "bguest@email.com",
+      "password": "78644",
+      "phone": "12345",
+      "userStatus": 1
+    }
+  ],
+  "order" : 
+  [
+    {
+      "id": 10,
+      "petId": 198772,
+      "quantity": 7,
+      "shipDate": "2023-03-15T00:42:46.415Z",
+      "status": "approved",
+      "complete": true
+    }
+  ],
+  "pet" : 
+  [
+    {
+      "id": 1,
+      "name": "Barky",
+      "photoUrls": [
+        "image1.jpg"
+      ],
+      "category": {
+        "id": 1,
+        "name": "Dogs"
+      },
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "name": "Purrsy",
+      "photoUrls": [
+        "image1.jpg"
+      ],
+      "category": {
+        "id": 2,
+        "name": "Cats"
+      },
+      "status": "available"
+    },
+    {
+      "id": 3,
+      "name": "Joe",
+      "photoUrls": [
+        "image1.jpg"
+      ],
+      "category": {
+        "id": 1,
+        "name": "Dogs"
+      },
+      "status": "available"
+    },
+    {
+      "id": 4,
+      "name": "Captain Salty",
+      "photoUrls": [
+        "image1.jpg"
+      ],
+      "category": {
+        "id": 2,
+        "name": "Cats"
+      },
+      "status": "pending"
+    }
+  ]
+}

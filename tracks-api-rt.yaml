@@ -2,7 +2,7 @@ apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
   name: tracks-rt
-  namespace: tracks
+  namespace: gloo-mesh-gateways
   labels:
      portal: demo-portal
 spec:
