@@ -1,0 +1,27 @@
+apiVersion: trafficcontrol.policy.gloo.solo.io/v2
+kind: RateLimitPolicy
+metadata:
+  name: pets-rate-limit
+  namespace: default
+spec:
+  applyToRoutes:
+  - route:
+      name: petstore1-pet
+  - route:
+      name: petstore2-store
+  config:
+    ratelimitServerConfig:
+      name: usage-plans
+      namespace: gloo-mesh-addons
+    raw:
+      rateLimits:
+      - actions:  
+        - requestHeaders:
+            descriptorKey: usagePlan
+            headerName: x-solo-plan
+        - metadata:
+            descriptorKey: userId
+            metadataKey:
+              key: envoy.filters.http.ext_authz
+              path:
+              - key: userId

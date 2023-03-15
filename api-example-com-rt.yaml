@@ -1,0 +1,19 @@
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: api-example-com-rt
+  namespace: gloo-mesh-gateways
+spec:
+  hosts:
+  - api.example.com
+  virtualGateways:
+  - name: istio-ingressgateway
+    namespace: gloo-mesh-gateways
+  http:
+  - matchers:
+    - uri:
+        prefix: /trackapi
+    delegate:
+      routeTables:
+        - labels:
+            portal: demo-portal
