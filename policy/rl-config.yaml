@@ -8,7 +8,7 @@ spec:
   - port:
       name: grpc
     ref:
-      cluster: cluster1
+      cluster: gg-demo-single
       name: rate-limiter
       namespace: gloo-mesh-addons
   raw:
@@ -18,19 +18,19 @@ spec:
       descriptors:
       - key: userId
         rateLimit:
-          requestsPerUnit: 50
+          requestsPerUnit: 5
           unit: MINUTE
     - key: usagePlan
       value: silver
       descriptors:
       - key: userId
         rateLimit:
-          requestsPerUnit: 200
+          requestsPerUnit: 10
           unit: MINUTE
     - key: usagePlan
       value: gold
       descriptors:
       - key: userId
         rateLimit:
-          requestsPerUnit: 1000
+          requestsPerUnit: 50
           unit: MINUTE

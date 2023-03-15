@@ -17,3 +17,8 @@ spec:
           k8sSecretApikeyStorage:
             labelSelector:
               extauth: apikey
+            headersFromMetadataEntry:
+              x-user-id: 
+                name: user-id
+              x-plan: 
+                name: usage-plan
