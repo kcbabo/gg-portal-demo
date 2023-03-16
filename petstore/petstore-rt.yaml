@@ -22,25 +22,25 @@ spec:
           namespace: default
         port:
           number: 5000
-  - name: users-api
-    matchers:
-    - uri:
-        prefix: /user
-    forwardTo:
-      destinations:
-      - ref:
-          name: users-rest-api
-          namespace: default
-        port:
-          number: 5000
-  - name: store-api
-    matchers:
-    - uri:
-        prefix: /store
-    forwardTo:
-      destinations:
-      - ref:
-          name: store-rest-api
-          namespace: default
-        port:
-          number: 5000
+  # - name: users-api
+  #   matchers:
+  #   - uri:
+  #       prefix: /user
+  #   forwardTo:
+  #     destinations:
+  #     - ref:
+  #         name: users-rest-api
+  #         namespace: default
+  #       port:
+  #         number: 5000
+  # - name: store-api
+  #   matchers:
+  #   - uri:
+  #       prefix: /store
+  #   forwardTo:
+  #     destinations:
+  #     - ref:
+  #         name: store-rest-api
+  #         namespace: default
+  #       port:
+  #         number: 5000
