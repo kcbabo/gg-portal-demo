@@ -3,16 +3,15 @@ kind: RouteTable
 metadata:
   name: petstore-rt
   namespace: gloo-mesh-gateways
+  labels:
+     portal: dev-portal
+     api: petstore
 spec:
-  hosts:
-  - api.example.com
-  virtualGateways:
-  - name: istio-ingressgateway
-    namespace: gloo-mesh-gateways
+  portalMetadata:
+    title: Petstore REST API
+    description: Totally awesome API for all things pets!
   http:
-  - name: petstore-api
-    labels:
-      route: petstore-api
+  - name: pets-api
     matchers:
     - uri:
         prefix: /pet
@@ -20,6 +19,28 @@ spec:
       destinations:
       - ref:
           name: pets-rest-api
+          namespace: default
+        port:
+          number: 5000
+  - name: users-api
+    matchers:
+    - uri:
+        prefix: /user
+    forwardTo:
+      destinations:
+      - ref:
+          name: users-rest-api
+          namespace: default
+        port:
+          number: 5000
+  - name: store-api
+    matchers:
+    - uri:
+        prefix: /store
+    forwardTo:
+      destinations:
+      - ref:
+          name: store-rest-api
           namespace: default
         port:
           number: 5000

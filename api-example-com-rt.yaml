@@ -16,4 +16,11 @@ spec:
     delegate:
       routeTables:
         - labels:
-            portal: demo-portal
+            api: tracks
+  - matchers:
+    - uri:
+        prefix: /petstore
+    delegate:
+      routeTables:
+        - labels:
+            api: petstore

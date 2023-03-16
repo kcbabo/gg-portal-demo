@@ -5,12 +5,8 @@ metadata:
   namespace: gloo-mesh-gateways
   labels:
      portal: dev-portal
+     api: tracks
 spec:
-  hosts:
-  - api.example.com
-  virtualGateways:
-  - name: istio-ingressgateway
-    namespace: gloo-mesh-gateways
   portalMetadata:
     title: Catstronauts REST API
     description: REST API for Catstronauts to retrieve data for tracks, authors and modules.
@@ -22,6 +18,7 @@ spec:
     - uri:
         prefix: /
     forwardTo:
+      pathRewrite: /
       destinations:
       - ref:
           name: tracks-rest-api

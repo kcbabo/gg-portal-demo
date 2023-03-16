@@ -1,3 +1,4 @@
 {
-    "/store/*": "/$1"
+    "/store/*": "/$1",
+    "/petstore/store/*": "/$1"
 }
