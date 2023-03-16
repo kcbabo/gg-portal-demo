@@ -6,10 +6,8 @@ metadata:
 spec:
   applyToRoutes:
   - route:
-      name: tracks-api
-  #- route:
-      #labels:
-      # security: api-key-auth
+      labels:
+        security: api-key-auth
   config:
     server:
       name: ext-auth-server

@@ -17,7 +17,6 @@ spec:
   http:
   - name: tracks-api
     labels:
-      route: tracks-api
       security: api-key-auth
     matchers:
     - uri:
