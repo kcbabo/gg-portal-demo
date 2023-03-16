@@ -1,12 +1,15 @@
 apiVersion: security.policy.gloo.solo.io/v2
 kind: ExtAuthPolicy
 metadata:
-  name: tracks-apiauth
+  name: api-key-auth
   namespace: default
 spec:
   applyToRoutes:
   - route:
       name: tracks-api
+  #- route:
+      #labels:
+      # security: api-key-auth
   config:
     server:
       name: ext-auth-server
@@ -17,8 +20,3 @@ spec:
           k8sSecretApikeyStorage:
             labelSelector:
               extauth: apikey
-            headersFromMetadataEntry:
-              x-user-id: 
-                name: user-id
-              x-plan: 
-                name: usage-plan

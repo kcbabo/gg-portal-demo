@@ -1,7 +1,7 @@
 apiVersion: apimanagement.gloo.solo.io/v2
 kind: Portal
 metadata:
-  name: petstore-portal
+  name: developer-portal
   namespace: gloo-mesh-addons
 spec:
   domains:
@@ -13,4 +13,4 @@ spec:
   apis:
     - routeTable:
         labels:
-           portal: demo-portal
+           portal: dev-portal
