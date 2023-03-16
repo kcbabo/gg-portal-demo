@@ -6,7 +6,8 @@ metadata:
 spec:
   applyToRoutes:
   - route:
-      name: tracks-api
+      labels:
+        route: tracks-api
   config:
     ratelimitServerConfig:
       name: usage-plans
