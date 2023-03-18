@@ -7,7 +7,7 @@ spec:
   applyToRoutes:
   - route:
       labels:
-        security: api-key-auth
+        usagePlans: dev-portal
   config:
     server:
       name: ext-auth-server
@@ -16,5 +16,8 @@ spec:
       configs:
       - apiKeyAuth:
           k8sSecretApikeyStorage:
+            headersFromMetadataEntry:
+              x-solo-plan: 
+                name: usage-plan
             labelSelector:
               extauth: apikey

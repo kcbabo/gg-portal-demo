@@ -13,7 +13,7 @@ spec:
   http:
   - name: tracks-api
     labels:
-      security: api-key-auth
+      usagePlans: dev-portal
     matchers:
     - uri:
         prefix: /

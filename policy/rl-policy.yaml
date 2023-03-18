@@ -7,20 +7,17 @@ spec:
   applyToRoutes:
   - route:
       labels:
-        route: tracks-api
+        usagePlans: dev-portal
   config:
     ratelimitServerConfig:
+      name: usage-plans
+      namespace: gloo-mesh-addons
+    ratelimitClientConfig:
       name: usage-plans
       namespace: gloo-mesh-addons
     serverSettings:
       name: rl-server
       namespace: gloo-mesh-addons
-    raw:
-      rateLimits:
-      - actions:  
-        - requestHeaders:
-            descriptorKey: usagePlan
-            headerName: x-plan
-        - requestHeaders:
-            descriptorKey: userId
-            headerName: x-user-id
+    phase:
+      postAuthz:
+        priority: 1
