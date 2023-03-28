@@ -16,6 +16,7 @@ spec:
     - uri:
         prefix: /pet
     forwardTo:
+      pathRewrite: /pet
       destinations:
       - ref:
           name: pets-rest-api

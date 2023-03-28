@@ -17,10 +17,10 @@ spec:
   #     routeTables:
   #       - labels:
   #           api: tracks
-  # - matchers:
-  #   - uri:
-  #       prefix: /petstore
-  #   delegate:
-  #     routeTables:
-  #       - labels:
-  #           api: petstore
+  - matchers:
+    - uri:
+        prefix: /petstore
+    delegate:
+      routeTables:
+        - labels:
+            api: petstore
