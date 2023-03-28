@@ -14,10 +14,11 @@ spec:
       namespace: gloo-mesh-addons
     glooAuth:
       configs:
-      - apiKeyAuth:
-          k8sSecretApikeyStorage:
-            headersFromMetadataEntry:
-              x-solo-plan: 
-                name: usage-plan
-            labelSelector:
-              extauth: apikey
+      - name : apikey
+        apiKeyAuth:
+          labelSelector:
+            extauth: apikey
+          headersFromMetadataEntry:
+            x-solo-plan: 
+              name: usage-plan
+              required: true
