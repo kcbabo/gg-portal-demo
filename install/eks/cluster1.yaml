@@ -1,0 +1,17 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: gloo-gateway
+  region: us-east-1
+  version: "1.21"
+  tags:
+    created-by: "keith_babo"
+    team: product
+    purpose: product-development
+
+nodeGroups:
+  - name: ng-1
+    instanceType: m5.large
+    desiredCapacity: 2
+    privateNetworking: true
