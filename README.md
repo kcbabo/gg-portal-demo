@@ -104,6 +104,8 @@ Since we have annotated the _Tracks_ service with our `gloo.solo.io/scrape-opena
 
 ```bash
 kubectl -n tracks get apidoc
+```
+```bash
 kubectl -n tracks get apidoc tracks-rest-api-service -o yaml
 ```
 
@@ -197,6 +199,8 @@ We can inspect the status of the `Portal` resource using the following commands:
 
 ```bash
 kubectl get Portal -A
+```
+```bash
 kubectl -n gloo-mesh-addons get Portal developer-portal -o yaml
 ```
 
@@ -204,6 +208,8 @@ The Portal automatically creates the `PortalConfig` resources from the existing 
 
 ```bash
 kubectl get PortalConfig -A
+```
+```bash
 kubectl -n gloo-mesh-addons get PortalConfig developer-portal-gloo-mesh-addons-gg-demo-single -o yaml
 ```
 
