@@ -55,6 +55,24 @@ The above creates very flexible model in which we can easily implement concepts 
 
 ---
 
+## Architecture
+
+In this demo, we will implement and provision the following architecture.
+
+![Alt text](images/gg-portal-demo-image.png?raw=true "GG Portal Demo Architecture")
+
+The architecure shows a number of different microservices, APIs, Gateways and other components. A brief explanation:
+
+* The black boxes at the bottom of the diagram represent microservices (Tracks, Pets, Users and Store) that expose a RESTful API and its microservice implementation
+* The _Track RT_ and _Petstore RT_ represent Gloo `RouteTables`, and, as stated above, are the pimitives we use to create and expose API Products.
+* The _Portal_ defines the Gloo Portal, being the Developer Portal that hosts our API Product definitions, in which we can apply API policies like security and rate limiting, and where API Keys can be generated to grant access to our APIs.
+* The _api.example.com_ `RouteTable` routes traffic from the `api.example.com` domain to our services.
+* The _developer.example.com_ `RouteTable` routes traffic from the `developer.example.com` domain to the Developer Portal.
+* The _Virtual Gateway_ exposes our routes to the outside world.
+
+---
+
+
 ## Walkthrough
 ### Tracks API
 In a clean Kubernetes environment, we can show that there are no services in the `default` namespace except for the Kube API service:
