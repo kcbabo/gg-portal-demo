@@ -168,7 +168,8 @@ We should now be able to cURL that endpoint. Note that you might need to edit yo
 curl -v api.example.com/trackapi/tracks
 ```
 
-NOTE: For demo purposes, no security has been enabled on this endpoint/service yet. The API will be secured after we the `ExtAuthPolicy`:
+#### Security
+NOTE: For demo purposes, no security has been enabled on this endpoint/service yet. The API will be secured after we apply the `ExtAuthPolicy`:
 
 ```bash
 kubectl apply -f policy/auth-policy.yaml
@@ -179,6 +180,22 @@ When we runt the cURL command again, _401 Unauthorized_ is returned"
 ```bash
 curl -v api.example.com/trackapi/tracks
 ```
+```bash
+*   Trying 127.0.0.1:80...
+* Connected to api.example.com (127.0.0.1) port 80 (#0)
+> GET /trackapi/tracks HTTP/1.1
+> Host: api.example.com
+> User-Agent: curl/7.86.0
+> Accept: */*
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 401 Unauthorized
+< www-authenticate: API key is missing or invalid
+< date: Wed, 29 Mar 2023 15:13:04 GMT
+< server: istio-envoy
+< content-length: 0
+<
+```
 
 When we run the command with the correct API-key, we get correctly authenticated and authorized to access the service (Note the the API-Key can be found in `policy/api-key.yaml`):
 
@@ -186,7 +203,48 @@ When we run the command with the correct API-key, we get correctly authenticated
 curl -v -H "api-key:N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" api.example.com/trackapi/tracks
 ```
 
+#### Rate Limiting
+Another common API Management feature is "rate limiting". Gloo implements rate-limiting via so called _Usage Plans_, which specify the tier of access given to clients. To apply a rate limiting policy to our _Tracks_ API, we apply the `policy/rl-policy.yaml` file. This policy uses labels to apply the policy to routes. In this demo, all routes with the label `usagePlans: dev-portal` will get the policy applies. This includes our _Tracks_ API route.
+
+```bash
+kubectl apply -f policy/rl-policy.yaml
+```
+
+Note that our API Key has a the `silver` usage plan configured, as can be seen in the `policy/api-key.yaml` file:
+
+```bash
+cat policy/api-key.yaml
+```
+
+The `silver` usage plan is configured to allow 3 requests per minute, as can be seen in the rate limiting configuration file `policy/rl-config.yaml`:
+```bash
+cat policy/rl-config.yaml
+```
+
+When we now try to access the _Tracks_ API multiple times per minute, we will see that we will get rate limited at the 3rd attempt, and get a _429 Too Many Requests_ error returned:
+```bash
+curl -v -H "api-key:N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" api.example.com/trackapi/tracks
+```
+```bash
+*   Trying 127.0.0.1:80...
+* Connected to api.example.com (127.0.0.1) port 80 (#0)
+> GET /trackapi/tracks HTTP/1.1
+> Host: api.example.com
+> User-Agent: curl/7.86.0
+> Accept: */*
+> api-key:N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 429 Too Many Requests
+< x-envoy-ratelimited: true
+< date: Wed, 29 Mar 2023 14:53:39 GMT
+< server: istio-envoy
+< content-length: 0
+<
+```
+
 ---
+
 ### Dev Portal
 
 We have deployed our API's `RouteTable`, but we haven't defined the DevPortal yet. We can deploy the basic Portal definition via the `dev-portal.yaml` file. It uses a label to define which RouteTables are exposed via the DevPortal. In this case, the label is `portal: dev-portal`. This label can for example be found on the `tracks-api-rt.yaml`. In other words: the Portal does not statically define which APIs get exposed, but performs a dynamic selection using labels. Let's deploy the DevPortal:
