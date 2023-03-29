@@ -27,6 +27,8 @@ Access Gloo Mesh dashboard using the `meshctl` CLI:
 .... or, via kubectl
 ```bash
 kubectl port-forward -n gloo-mesh svc/gloo-mesh-ui 8090:8090
+```
+```bash
 open http://localhost:8090
 ```
 
@@ -92,6 +94,8 @@ We can inspect the _Tracks_ service's `swagger.json` specification as follows:
 
 ```bash
 kubectl -n tracks port-forward services/tracks-rest-api 5000:5000
+```
+```bash
 open http://localhost:5000/swagger.json
 ```
 Here we simply port-forward our local port 5000 to the _Tracks_ api service's port 5000, allowing us to access its `http` endpoint.
@@ -248,6 +252,8 @@ Like with the _Tracks_ API, we can fetch the OpenAPI Swagger definitiion by port
 
 ```bash
 kubectl -n default port-forward services/pets-rest-api 5000:5000
+```
+```bash
 open http://localhost:5000/swagger.json
 ```
 
