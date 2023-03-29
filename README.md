@@ -156,7 +156,7 @@ The `api-example-com-rt.yaml` file defines the `RouteTable` resource that expose
 cat api-example-com-rt.yaml
 ```
 
-In the `api-example-rt.yaml` file, uncomment the `/trackapi` matcher and its `delegate` configuration. After you've saved these chanegs, apply the `RouteTable` resource:
+In the `api-example-rt.yaml` file, uncomment the `/trackapi` matcher and its `delegate` configuration. After you've saved these changes, apply the `RouteTable` resource:
 
 ```bash
 kubectl apply -f api-example-com-rt.yaml
@@ -279,7 +279,7 @@ With the _Pets_ API and service deployed, we can now add the required `RouteTabl
 kubectl apply -f petstore/petstore-rt.yaml
 ```
 
-To make the _Petstore_ API Product accessible to the outside world, we also need to connect it to the top-level domain. Open the `api-example-com-rt.yaml` file again and uncomment the `/petstore` matcher and its `delegate` configuration. After you've saved these chanegs, re-apply the `RouteTable` resource:
+To make the _Petstore_ API Product accessible to the outside world, we also need to connect it to the top-level domain. Open the `api-example-com-rt.yaml` file again and uncomment the `/petstore` matcher and its `delegate` configuration. After you've saved these changes, re-apply the `RouteTable` resource:
 
 ```bash
 kubectl apply -f api-example-com-rt.yaml
