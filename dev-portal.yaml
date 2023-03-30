@@ -19,6 +19,5 @@ spec:
      - name: gold
        description: "The best usage plan!"
   apis:
-    - routeTable:
-        labels:
-           portal: dev-portal
+    - labels:
+        portal: dev-portal
