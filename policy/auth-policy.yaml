@@ -21,4 +21,4 @@ spec:
           headersFromMetadataEntry:
             x-solo-plan:
               name: usage-plan
-              required: trueg
+              required: true
