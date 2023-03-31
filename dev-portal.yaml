@@ -20,4 +20,4 @@ spec:
        description: "The best usage plan!"
   apis:
     - labels:
-           portal: dev-portal
+        portal: dev-portal
