@@ -3,10 +3,6 @@ kind: RouteTable
 metadata:
   name: api-example-com-rt
   namespace: gloo-mesh-gateways
-#  When using delegated route tables the labels used to select the route table from the portal
-#  should be added to the parent table. Uncomment below to add labels to the parent table.
-#  labels:
-#    portal: dev-portal
 spec:
   hosts:
   - api.example.com
