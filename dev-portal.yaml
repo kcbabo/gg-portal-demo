@@ -6,7 +6,7 @@ metadata:
 spec:
   domains:
     - developer.example.com
-  portalBackendSelector:
+  portalBackendSelectors:
     - selector:
         labels:
           app: gloo-mesh-portal-server
@@ -19,6 +19,5 @@ spec:
      - name: gold
        description: "The best usage plan!"
   apis:
-    - routeTable:
-        labels:
-           portal: dev-portal
+    - labels:
+        portal: dev-portal

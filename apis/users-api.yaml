@@ -27,6 +27,9 @@ kind: Service
 metadata:
   annotations:
     gloo.solo.io/scrape-openapi-source: /swagger.json
+    gloo.solo.io/scrape-openapi-retry-delay: "5s"
+    gloo.solo.io/scrape-openapi-pull-attempts: "3"
+    gloo.solo.io/scrape-openapi-use-backoff: "true"
   name: users-rest-api
   namespace: default
   labels:
