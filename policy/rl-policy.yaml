@@ -12,9 +12,11 @@ spec:
     ratelimitServerConfig:
       name: usage-plans
       namespace: gloo-mesh-addons
+      cluster: gg-demo-single
     ratelimitClientConfig:
       name: usage-plans
       namespace: gloo-mesh-addons
+      cluster: gg-demo-single
     serverSettings:
       name: rl-server
       namespace: gloo-mesh-addons
