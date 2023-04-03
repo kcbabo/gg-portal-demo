@@ -13,7 +13,14 @@ BIN_DIR="$(pwd)/.gloo-mesh/bin"
 mkdir -p ${BIN_DIR}
 MESHCTL_BIN="${BIN_DIR}/meshctl"
 rm ${MESHCTL_BIN} || true
-wget "https://storage.googleapis.com/gloo-platform-dev/meshctl/${GLOO_MESH_VERSION}/meshctl-darwin-arm64" -O ${MESHCTL_BIN}
+if [  "$(uname -m)" = "aarch64" ]; then
+	GOARCH=arm64
+elif [ "$(uname -m)" = "arm64" ]; then
+	GOARCH=arm64
+else
+	GOARCH=amd64
+fi
+wget "https://storage.googleapis.com/gloo-platform-dev/meshctl/${GLOO_MESH_VERSION}/meshctl-darwin-${GOARCH}" -O ${MESHCTL_BIN}
 chmod +x ${MESHCTL_BIN}
 
 ${MESHCTL_BIN} version
