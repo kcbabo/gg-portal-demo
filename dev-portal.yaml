@@ -4,6 +4,10 @@ metadata:
   name: developer-portal
   namespace: gloo-mesh-addons
 spec:
+  visibility:
+    public: true
+    privateAPILabels:
+      portal-visibility: private
   domains:
     - developer.example.com
   portalBackendSelectors:

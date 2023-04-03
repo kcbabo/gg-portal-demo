@@ -20,6 +20,6 @@ spec:
               x-solo-plan: 
                 name: usage-plan
                 required: true
-            k8sSecretApikeyStorage:
-              labelSelector:
-                extauth: apikey
+#            k8sSecretApikeyStorage:
+#              labelSelector:
+#                extauth: apikey

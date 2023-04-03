@@ -1,0 +1,39 @@
+apiVersion: security.policy.gloo.solo.io/v2
+kind: ExtAuthPolicy
+metadata:
+  name: oidc-auth
+  namespace: gloo-mesh
+spec:
+  applyToRoutes:
+    - route:
+        labels:
+          oauth: "true"
+  config:
+    server:
+      name: ext-auth-server
+      namespace: gloo-mesh-addons
+      cluster: cluster-1
+    glooAuth:
+      configs:
+        - oauth2:
+            oidcAuthorizationCode:
+              appUrl: ${APP_URL}/v1/apis # update this with your App url
+              callbackPath: /v1/login
+              clientId: ${KEYCLOAK_CLIENT_ID} # update this with your Keycloak client id
+              clientSecretRef:
+                name: oauth
+                namespace: gloo-mesh-addons
+              issuerUrl: https://${KEYCLOAK_URL}/auth/realms/master/ # update this with your Keycloak url
+              logoutPath: /v1/logout
+              scopes:
+                - email
+              # you can change the session config to use redis if you want
+              session:
+                failOnFetchFailure: true
+                cookie:
+                  allowRefreshing: true
+                cookieOptions:
+                  notSecure: true
+                  maxAge: 3600
+              headers:
+                idTokenHeader: id_token
