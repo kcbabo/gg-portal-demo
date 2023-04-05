@@ -8,6 +8,10 @@ kubectl create ns gloo-mesh || true
 kubectl create ns gloo-mesh-addons || true
 kubectl label namespace gloo-mesh-addons istio-injection=enabled --overwrite
 
+export MESH_CRD_URL="https://storage.googleapis.com/gloo-platform-dev/helm-charts/gloo-mesh-crds/gloo-mesh-crds-${GLOO_VERSION}.tgz"
+export MESH_CHART_URL="https://storage.googleapis.com/gloo-platform-dev/helm-charts/gloo-mesh-enterprise/gloo-mesh-enterprise-${GLOO_VERSION}.tgz"
+export AGENT_CHART_URL="https://storage.googleapis.com/gloo-platform-dev/helm-charts/gloo-mesh-agent/gloo-mesh-agent-${GLOO_VERSION}.tgz"
+
 # Gloo mesh install
 BIN_DIR="$(pwd)/.gloo-mesh/bin"
 mkdir -p ${BIN_DIR}
@@ -25,16 +29,27 @@ chmod +x ${MESHCTL_BIN}
 
 ${MESHCTL_BIN} version
 
-${MESHCTL_BIN} install \
-  --namespace gloo-mesh \
-  --version "$GLOO_MESH_VERSION" \
-  --chart-file $MESH_CHART_URL \
-  --chart-values-file "helm-values.yaml" \
-  --license $GLOO_GATEWAY_LICENSE_KEY
+#${MESHCTL_BIN} install \
+#  --namespace gloo-mesh \
+#  --version "$GLOO_MESH_VERSION" \
+#  --chart-file $MESH_CHART_URL \
+#  --chart-values-file "helm-values.yaml" \
+#  --license $GLOO_GATEWAY_LICENSE_KEY
 
-helm install gloo-agent-addons $AGENT_CHART_URL \
-  --namespace gloo-mesh-addons \
-  --values "addon-values.yaml"
+helm install gloo-platform-crds $MESH_CRD_URL \
+   --namespace=gloo-mesh \
+   --create-namespace 
+
+
+# helm install gloo-agent-addons $AGENT_CHART_URL \
+#   --namespace gloo-mesh-addons \
+#   --values "addon-values.yaml"
+
+helm install gloo-platform $MESH_CHART_URL \
+   --namespace gloo-mesh \
+   --values gloo-gateway.yaml \
+   --set common.cluster=$CLUSTER_NAME \
+   --set glooGatewayLicenseKey=$GLOO_GATEWAY_LICENSE_KEY
 
 
 printf "\nWaiting for gloo-mesh-gateways namespace...\n"
