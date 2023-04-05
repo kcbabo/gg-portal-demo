@@ -7,3 +7,5 @@ kubectl delete -f dev-portal.yaml
 kubectl delete -f tracks
 kubectl delete -f petstore
 kubectl delete -f apis
+
+kubectl delete ns tracks

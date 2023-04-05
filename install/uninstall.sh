@@ -4,18 +4,18 @@ set +e +x
 
 source ./env.sh
 
-kubectl delete istiolifecyclemanagers -n gloo-mesh gloo-mesh-enterprise || true
-kubectl delete gatewaylifecyclemanagers -n gloo-mesh istio-ingressgateway || true
+# clean up Istio resources
+kubectl delete GatewayLifecycleManager istio-ingressgateway -n gloo-mesh
+kubectl delete IstioLifecycleManager gloo-platform -n gloo-mesh
+kubectl delete ns istio-system
+kubectl delete ns gloo-mesh-gateways
 
-istioctl uninstall --purge -y
-#kubectl delete IstioOperator ingress-gateway-16-2 -n gloo-mesh-gateways
+# uninstall GG
+meshctl uninstall
+helm uninstall gloo-platform-crds -n gloo-mesh
+kubectl delete namespace gloo-mesh
+kubectl delete namespace gloo-mesh-addons
 
-meshctl uninstall \
-  --namespace gloo-mesh
-
-helm uninstall gloo-agent-addons --namespace gloo-mesh-addons
-
-sleep 10
-
-kubectl delete ns tracks istio-system gloo-mesh gloo-mesh-addons gloo-mesh-gateways || true
+# clean up demo resources
+kubectl delete ns istio-system gloo-mesh gloo-mesh-addons gloo-mesh-gateways || true
 
