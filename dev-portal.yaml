@@ -9,7 +9,7 @@ spec:
     privateAPILabels:
       portal-visibility: private
   domains:
-    - developer.example.com
+    - a928c50c0d9c8455aad8ef7ba2c37324-734996679.us-east-1.elb.amazonaws.com
   portalBackendSelectors:
     - selector:
         labels:

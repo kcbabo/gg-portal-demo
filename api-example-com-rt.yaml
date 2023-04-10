@@ -10,13 +10,13 @@ spec:
   - name: istio-ingressgateway
     namespace: gloo-mesh-gateways
   http:
-  # - matchers:
-  #   - uri:
-  #       prefix: /trackapi
-  #   delegate:
-  #     routeTables:
-  #       - labels:
-  #           api: tracks
+  - matchers:
+    - uri:
+        prefix: /trackapi
+    delegate:
+      routeTables:
+        - labels:
+            api: tracks
   # - matchers:
   #   - uri:
   #       prefix: /petstore

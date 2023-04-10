@@ -2,19 +2,20 @@ apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
   name: dev-portal-rt
-  namespace: istio-gateway-ns # update this if you are using gg to gloo-mesh-gateways
+  namespace: gloo-mesh-gateways
 spec:
   hosts:
     - "developer.example.com"
   virtualGateways:
-    - name: istio-ingressgateway # update this if you are using gg to gloo-mesh-gateways
+    - name: istio-ingressgateway
+      namespace: gloo-mesh-gateways
   defaultDestination:
     port:
       number: 8080
     ref:
       name: gloo-mesh-portal-server
       namespace: gloo-mesh
-      cluster: cluster-1
+      cluster: gg-demo-single
   http:
     - forwardTo: {}
       name: authn

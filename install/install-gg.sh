@@ -22,8 +22,8 @@ helm install gloo-platform-crds gloo-platform/gloo-platform-crds \
 
 # WORKAROUND - this can be removed when install is fixed
 # Add missing secrets
-echo "Adding missing secrets ..."
-kubectl apply -f missing-secrets.yaml
+#echo "Adding missing secrets ..."
+#kubectl apply -f missing-secrets.yaml
 
 # install GG with addons
 echo "Installing Gloo Gateway ..."
@@ -61,9 +61,6 @@ spec:
     - port:
         number: 80
       http: {}
-      allowedRouteTables:
-        - host: ${GATEWAY_HOST}
-        - host: ${PORTAL_HOST}
   workloads:
   - selector:
       labels:
