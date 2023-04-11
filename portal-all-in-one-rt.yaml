@@ -5,7 +5,7 @@ metadata:
   namespace: gloo-mesh-gateways
 spec:
   hosts:
-    - "*"
+    - "developer.example.com"
   virtualGateways:
     - name: istio-ingressgateway
       namespace: gloo-mesh-gateways

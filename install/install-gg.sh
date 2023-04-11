@@ -20,11 +20,6 @@ helm install gloo-platform-crds gloo-platform/gloo-platform-crds \
    --create-namespace \
    --version $GLOO_VERSION
 
-# WORKAROUND - this can be removed when install is fixed
-# Add missing secrets
-#echo "Adding missing secrets ..."
-#kubectl apply -f missing-secrets.yaml
-
 # install GG with addons
 echo "Installing Gloo Gateway ..."
 helm install gloo-platform gloo-platform/gloo-platform \
@@ -72,3 +67,9 @@ sleep 3
 
 GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 printf "Ingress gateway hostame: %s\n" $GW_HOST
+
+printf "Installing Keycloak"
+kubectl create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/12.0.4/kubernetes-examples/keycloak.yaml
+kubectl rollout status deploy/keycloak
+KC_HOST=$(kubectl get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+printf "Keycloak service hostame: %s\n" $KC_HOST

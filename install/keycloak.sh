@@ -4,8 +4,10 @@ set +x -e
 source ./env.sh
 
 export KEYCLOAK_CLIENT_ID=portal-client
-export KEYCLOAK_URL=http://ae627d5f61abb45faa655974e01615da-1346174541.us-east-1.elb.amazonaws.com:8080/auth
-export APP_URL=http://a928c50c0d9c8455aad8ef7ba2c37324-734996679.us-east-1.elb.amazonaws.com
+#export KEYCLOAK_URL=http://ae627d5f61abb45faa655974e01615da-1346174541.us-east-1.elb.amazonaws.com:8080/auth
+export KEYCLOAK_URL=http://$KEYCLOAK_HOST:8080/auth
+export APP_URL=http://$PORTAL_HOST
+#export APP_URL=http://a928c50c0d9c8455aad8ef7ba2c37324-734996679.us-east-1.elb.amazonaws.com
 
 [[ -z "$KC_ADMIN_PASS" ]] && { echo "You must set KC_ADMIN_PASS env var to the password for a Keycloak admin account"; exit 1;}
 
@@ -18,7 +20,7 @@ export KEYCLOAK_TOKEN=$(curl -k -d "client_id=admin-cli" -d "username=admin" -d 
 read -r regid secret <<<$(curl -k -X POST -d "{ \"clientId\": \"${KEYCLOAK_CLIENT_ID}\" }" -H "Content-Type:application/json" -H "Authorization: bearer ${KEYCLOAK_TOKEN}" ${KEYCLOAK_URL}/realms/master/clients-registrations/default|  jq -r '[.id, .secret] | @tsv')
 export KEYCLOAK_SECRET=${secret}
 export REG_ID=${regid}
-curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"serviceAccountsEnabled": true, "directAccessGrantsEnabled": true, "authorizationServicesEnabled": true, "redirectUris": ["http:/example.com/portal-server/v1/login"]}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
+curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"serviceAccountsEnabled": true, "directAccessGrantsEnabled": true, "authorizationServicesEnabled": true, "redirectUris": ["http://developer.example.com/portal-server/v1/login"]}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
 
 [[ -z "$KEYCLOAK_SECRET" || $KEYCLOAK_SECRET == null ]] && { echo "Faled to create client in Keycloak"; exit 1;}
 

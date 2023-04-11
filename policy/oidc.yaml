@@ -12,19 +12,19 @@ spec:
     server:
       name: ext-auth-server
       namespace: gloo-mesh-addons
-      cluster: cluster-1
+      cluster: gg-demo-single
     glooAuth:
       configs:
         - oauth2:
             oidcAuthorizationCode:
-              appUrl: ${APP_URL}/v1/apis # update this with your App url
-              callbackPath: /v1/login
-              clientId: ${KEYCLOAK_CLIENT_ID} # update this with your Keycloak client id
+              appUrl: http://developer.example.com
+              callbackPath: /portal-server/v1/login
+              clientId: portal-client
               clientSecretRef:
                 name: oauth
                 namespace: gloo-mesh-addons
-              issuerUrl: https://${KEYCLOAK_URL}/auth/realms/master/ # update this with your Keycloak url
-              logoutPath: /v1/logout
+              issuerUrl: http://a89395a557605498bad97c46b31e0c12-191503799.us-east-1.elb.amazonaws.com:8080/auth/realms/master/
+              logoutPath: /portal-server/v1/logout
               scopes:
                 - email
               # you can change the session config to use redis if you want

@@ -7,7 +7,7 @@ metadata:
      portal: dev-portal
      api: tracks
 # uncomment if you want to hide this API from the portal
-#     portal-visibility: private
+    #  portal-visibility: private
 spec:
   portalMetadata:
     title: Catstronauts REST API

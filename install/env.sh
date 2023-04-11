@@ -10,6 +10,5 @@ export ISTIO_REVISION=1-17-1
 
 export GATEWAY_HOST=api.example.com
 export PORTAL_HOST=developer.example.com
+export KEYCLOAK_HOST=keycloak.example.com
 export GATEWAY_NAMESPACE=gloo-mesh-gateways
-
-export KEYCLOAK_URL=http://keycloak.example.com:8080/auth
