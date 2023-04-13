@@ -4,19 +4,40 @@
 
 This repository comes with a number of installation scripts that allow you to easily deploy this demo to a Kubernetes cluster.
 
-First, we need to to run the `install-gg-dev.sh` script. Note that this step requires you to have a valid Gloo Gateway license key. This will install Gloo Gateway and Portal onto your Kubernetes cluster. It will also download the `meshctl` command line interface.
+First, we need to to run the `install-gg.sh` script. Note that this step requires you to have a valid Gloo Gateway license key. This will install Gloo Gateway and Portal onto your Kubernetes cluster. It will also download the `meshctl` command line interface.
 ```bash
 cd install
 export GLOO_GATEWAY_LICENSE_KEY={YOUR_GLOO_GATEWAY_LICENSE_KEY}
 ./install-gg-dev.sh
 ```
+Note that the install script will spit out two hostname values that look like this:
+```
+Ingress gateway hostame:
+Keycloak service hostame:
+```
 
+These demo instructions assume that you have mapped the IP addresses of these hosts to `developer.example.com`, `api.example.com`, and `keycloak.example.com` in /etc/hosts, e.g.
+```
+1.1.1.1 developer.example.com api.example.com 
+1.1.1.2 keycloak.example.com
+```
+
+There is a bug in secret generation in RC1 where the `ext-auth-service-api-key-secret-key` secret is added to the wrong namespace. If you are running RC2 or later, you do not have to do this! Let's copy the secret to the correct namespace:
+
+```
+kubectl get secret ext-auth-service-api-key-secret-key --namespace=gloo-mesh -o yaml | sed 's/namespace: .*/namespace: gloo-mesh-addons/' | kubectl apply -f -
+```
+
+The install script also deploys a Keycloak instance to support OIDC login for the Dev Portal UI and API. We need to set up a client and some users, so run the `keycloak.sh` script to do that. NOTE: you must set the environment variable `KC_ADMIN_PASS` to the value of your Keycloak password (defaults to 'admin').
+```
+export KC_ADMIN_PASS=<your password>
+./keycloak.sh
+```
 Next, run the `init.sh` script to pre-provision your environment with some authentication, rate-limit policies, etc. (see the `init.sh` file for details). This file needs to be executed from the repo's root directory.
 ```bash
 cd ..
 ./install/init.sh
 ```
-
 
 Access Gloo Mesh dashboard using the `meshctl` CLI:
 ```bash
@@ -297,21 +318,19 @@ This schema is stitched from all the `APIDoc` resources that are exposed via a g
 We can now cURL the REST API definition from the developer portal:
 
 ```bash
-curl -v developer.example.com/v1/apis/tracks-rt-gloo-mesh-gateways-gg-demo-single/schema
+curl -v developer.example.com/portal-server/v1/apis/tracks-rt-gloo-mesh-gateways-gg-demo-single/schema
 ```
 
 A list of all APIs exposed via this developer portal can be fetched with the following cURL command:
 
 ```bash
-curl -v developer.example.com/v1/apis
+curl -v developer.example.com/portal-server/v1/apis
 ```
 
-TODO: Provide instructions how to run the developer portal UI application. See: https://github.com/solo-io/dev-portal-starter/ . Use the `live-api` branch instead of `main` for now.
-
-With the Developer Portal UI running, we can access it on http://localhost:4000
+The example Developer Portal UI is deployed as a Node-based service in our cluster. To access the developer portal UI, open http://developer.example.com in your browser.
 
 ```bash
-open http://localhost:4000
+open http://developer.example.com
 ```
 
 In the Developer Portal UI we can view all the APIs that have been exposed via our Developer Portal and too which we have access (authentication and authorization flows to be added later).
@@ -358,7 +377,7 @@ To make the _Petstore_ API Product accessible to the outside world, we also need
 kubectl apply -f api-example-com-rt.yaml
 ```
 
-Go back to the Dev Portal UI at http://localhost:4000 and observe that the _Petstore_ API has been dynamically added to the Dev Portal.
+Go back to the Dev Portal UI at http://developer.example.com and observe that the _Petstore_ API has been dynamically added to the Dev Portal.
 
 We can now deploy 2 additional APIs, the _User_ API and the _Store_ API. Like with the other APIs, these are implemented as individual microservices. We will add these APIs to our _Petstore_ API Product. Firs we need to deploy the APIs and services:
 
@@ -373,4 +392,4 @@ We can now add these 2 services to the `petstore-rt.yaml` `RouteTable` definitio
 kubectl apply - f petstore/petstore-rt.yaml
 ```
 
-Go back to the Dev Portal UI at http://localhost:4000 and notice that our _Petstore_ API Product now contains 2 additional RESTful Resources, `/user` and `/store`.
+Go back to the Dev Portal UI at http://developer.example.com and notice that our _Petstore_ API Product now contains 2 additional RESTful Resources, `/user` and `/store`.
