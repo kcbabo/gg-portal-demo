@@ -66,6 +66,7 @@ EOF
 sleep 3
 
 GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+[[ -z "$GW_HOST" ]] && { GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}');}
 printf "Ingress gateway hostame: %s\n" $GW_HOST
 
 printf "Installing Keycloak"
