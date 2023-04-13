@@ -6,9 +6,10 @@ This repository comes with a number of installation scripts that allow you to ea
 
 First, we need to to run the `install-gg.sh` script. Note that this step requires you to have a valid Gloo Gateway license key. This will install Gloo Gateway and Portal onto your Kubernetes cluster. It will also download the `meshctl` command line interface.
 ```bash
+# Note: Update `CLUSTER_CTX` var in install/.env 
 cd install
 export GLOO_GATEWAY_LICENSE_KEY={YOUR_GLOO_GATEWAY_LICENSE_KEY}
-./install-gg-dev.sh
+./install-gg.sh
 ```
 Note that the install script will spit out two hostname values that look like this:
 ```
