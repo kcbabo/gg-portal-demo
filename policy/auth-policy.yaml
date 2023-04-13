@@ -18,7 +18,7 @@ spec:
             headerName: api-key
             headersFromMetadataEntry:
               x-solo-plan: 
-                name: usage-plan
+                name: usagePlan
                 required: true
 #            k8sSecretApikeyStorage:
 #              labelSelector:
