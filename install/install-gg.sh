@@ -66,10 +66,12 @@ EOF
 sleep 3
 
 GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+[[ -z "$GW_HOST" ]] && { GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}');}
 printf "Ingress gateway hostame: %s\n" $GW_HOST
 
 printf "Installing Keycloak"
 kubectl create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/12.0.4/kubernetes-examples/keycloak.yaml
 kubectl rollout status deploy/keycloak
 KC_HOST=$(kubectl get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+[[ -z "$KC_HOST" ]] && { KC_HOST=$(kubectl get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].ip}');}
 printf "Keycloak service hostame: %s\n" $KC_HOST
