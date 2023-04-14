@@ -12,6 +12,7 @@ spec:
     server:
       name: ext-auth-server
       namespace: gloo-mesh-addons
+      cluster: gg-demo-single
     glooAuth:
       configs:
         - apiKeyAuth:
