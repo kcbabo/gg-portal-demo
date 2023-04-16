@@ -5,7 +5,7 @@ source ./env.sh
 
 export KEYCLOAK_CLIENT_ID=portal-client
 #export KEYCLOAK_URL=http://ae627d5f61abb45faa655974e01615da-1346174541.us-east-1.elb.amazonaws.com:8080/auth
-export KEYCLOAK_URL=http://$KEYCLOAK_HOST:8080/auth
+export KEYCLOAK_URL=http://$KEYCLOAK_HOST:8080
 export APP_URL=http://$PORTAL_HOST
 #export APP_URL=http://a928c50c0d9c8455aad8ef7ba2c37324-734996679.us-east-1.elb.amazonaws.com
 
