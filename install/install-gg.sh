@@ -11,7 +11,9 @@ helm repo add gloo-platform https://storage.googleapis.com/gloo-platform/helm-ch
 helm repo update
 
 curl -sL https://run.solo.io/meshctl/install | GLOO_MESH_VERSION=v$GLOO_VERSION sh -
-meshctl version
+MESH_HOME=$HOME/.gloo-mesh
+MESHCTL_BIN=$MESH_HOME/bin
+$MESHCTL_BIN/meshctl version
 
 # install CRDs
 echo "Installing Gloo Gateway CRDs ..."
@@ -67,11 +69,12 @@ sleep 3
 
 GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 [[ -z "$GW_HOST" ]] && { GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}');}
-printf "Ingress gateway hostame: %s\n" $GW_HOST
+printf "\nIngress gateway hostame: %s\n" $GW_HOST
 
-printf "Installing Keycloak"
-kubectl create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/12.0.4/kubernetes-examples/keycloak.yaml
-kubectl rollout status deploy/keycloak
-KC_HOST=$(kubectl get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-[[ -z "$KC_HOST" ]] && { KC_HOST=$(kubectl get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].ip}');}
-printf "Keycloak service hostame: %s\n" $KC_HOST
+printf "\nInstalling Keycloak\n"
+kubectl create ns keycloak
+kubectl -n keycloak create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/21.0.2/kubernetes-examples/keycloak.yaml
+kubectl -n keycloak rollout status deploy/keycloak
+KC_HOST=$(kubectl -n keycloak get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+[[ -z "$KC_HOST" ]] && { KC_HOST=$(kubectl -n keycloak get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].ip}');}
+printf "\nKeycloak service hostname: %s\n" $KC_HOST
