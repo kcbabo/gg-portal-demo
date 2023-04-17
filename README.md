@@ -387,7 +387,7 @@ Go back to the Dev Portal UI at http://developer.example.com and notice that our
 
 To use our APIs, we will need to create API-keys in order to be able to access them (remember that we had secured our _Tracks_ REST API earlier,  where we got a _401 - Unauthorized_ when we tried to access it). In Gloo Portal, API-keys are bound to _Usage Plans_. A _Usage Plane_ defines a policy or set of policies that the usage of the service. The most common use-case is rate limiting.
 
-In the Dev Portal UI at http://developer.example.com, click on the _Login_ button in the upper right corner. This should bring you to the Keycloak login screen. Login with username `user1` and password `password`. After you've logged in, click on your username in the upper right corner (this should say _User1_) and click on _API Keys_ to navigate to the _API Keys_ screen. You will our 2 APIs listed, _Tracks_ (Castronauts) and _Petstore_. You can also see that there are zero _Plans_ defined for these APIs, and hence, we cannot yet create any API Keys. So let's first enable the plans for our APIs by applying the rate-limit policies to our API Products/RouteTables.
+In the Dev Portal UI at http://developer.example.com, click on the _Login_ button in the upper right corner. This should bring you to the Keycloak login screen. Login with username `user1` and password `password`. After you've logged in, click on your username in the upper right corner (this should say _User1_) and click on _API Keys_ to navigate to the _API Keys_ screen. You will our 2 APIs listed, _Tracks_ (Catstronauts) and _Petstore_. You can also see that there are zero _Plans_ defined for these APIs, and hence, we cannot yet create any API Keys. So let's first enable the plans for our APIs by applying the rate-limit policies to our API Products/RouteTables.
 
 
 Gloo implements rate-limiting via _Usage Plans_, which specify the tier of access given to clients. We first need to enable the _Usage Plans_ in our Portal. Open the `dev-portal.yaml` file and uncomment the `usagePlans` configuration section. Save the file and re-apply it:
@@ -418,7 +418,7 @@ numAppliedRoutePolicies:
     trafficcontrol.policy.gloo.solo.io/v2, Kind=RateLimitPolicy: 1
 ```
 
-When we now refresg the Dev Portal UI _API Usage Plans & Keys_ screen at http://developer.example.com/usage-plans, we see that there are 3 _Usage Plans_ available for our _Tracks_ (_Castronauts_) API.
+When we now refresg the Dev Portal UI _API Usage Plans & Keys_ screen at http://developer.example.com/usage-plans, we see that there are 3 _Usage Plans_ available for our _Tracks_ (_Catstronauts_) API.
 
 
 ### Private APIs
