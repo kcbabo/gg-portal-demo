@@ -44,6 +44,7 @@ Add the following line to your /etc/hosts file:
 ```
 
 This allows both the Gloo authentication server and your browser to communicate with the Keycloak identity provider.
+
 ---
 
 The installation script also automatically downloads and installs the `meshctl` CLI. To have global access from the command line to this CLI, you should add the directory `$HOME/.gloo-mesh/bin` to your PATH system variable:
