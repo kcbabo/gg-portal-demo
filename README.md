@@ -22,30 +22,6 @@ These demo instructions assume that you have mapped the IP addresses of these ho
 1.1.1.1 developer.example.com api.example.com 
 1.1.1.2 keycloak.example.com
 ```
----
-**Note**:
-
-If you're running this demo on a local Kubernetes cluster like _minikube_, the script might not provide a hostname for the Keycloak service and Ingress gateway. In that case you can, for example, create a tunnel to your cluster with `minikube tunnel` and map your local loopback address (i.e. 127.0.0.1) to the hosts mentioned earlier in /etc/hosts, e.g.
-
-```
-127.0.0.1 developer.example.com api.example.com keycloak.example.com
-
-```
-The second thing that you would need to do in such an environment is change the Keycloak URL in the installed authentication policy to point to the Kubernetes service DNS for the Keycloak service, and add this DNS name to your /etc/hosts file:
-
-Patch the authentication policy using the following command:
-```bash
-kubectl -n gloo-mesh patch ExtAuthPolicy oidc-auth --type "json" -p '[{"op":"replace","path":"/spec/config/glooAuth/configs/0/oauth2/oidcAuthorizationCode/issuerUrl","value":"http://keycloak.keycloak.svc.cluster.local:8080/realms/master/"}]'
-```
-
-Add the following line to your /etc/hosts file:
-```
-127.0.0.1 keycloack.keycloak.svc.cluster.local
-```
-
-This allows both the Gloo authentication server and your browser to communicate with the Keycloak identity provider.
-
----
 
 The installation script also automatically downloads and installs the `meshctl` CLI. To have global access from the command line to this CLI, you should add the directory `$HOME/.gloo-mesh/bin` to your PATH system variable:
 ```bash
@@ -82,6 +58,30 @@ kubectl port-forward -n gloo-mesh svc/gloo-mesh-ui 8090:8090
 ```bash
 open http://localhost:8090
 ```
+
+---
+
+**Note**:
+
+If you're running this demo on a local Kubernetes cluster like _minikube_, the script might not provide a hostname for the Keycloak service and Ingress gateway. In that case you can, for example, create a tunnel to your cluster with `minikube tunnel` and map your local loopback address (i.e. 127.0.0.1) to the hosts mentioned earlier in /etc/hosts, e.g.
+
+```
+127.0.0.1 developer.example.com api.example.com keycloak.example.com
+
+```
+The second thing that you would need to do in such an environment is change the Keycloak URL in the installed authentication policy to point to the Kubernetes service DNS for the Keycloak service, and add this DNS name to your /etc/hosts file:
+
+Patch the authentication policy using the following command:
+```bash
+kubectl -n gloo-mesh patch ExtAuthPolicy oidc-auth --type "json" -p '[{"op":"replace","path":"/spec/config/glooAuth/configs/0/oauth2/oidcAuthorizationCode/issuerUrl","value":"http://keycloak.keycloak.svc.cluster.local:8080/realms/master/"}]'
+```
+
+Add the following line to your /etc/hosts file:
+```
+127.0.0.1 keycloack.keycloak.svc.cluster.local
+```
+
+This allows both the Gloo authentication server and your browser to communicate with the Keycloak identity provider.
 
 ---
 
