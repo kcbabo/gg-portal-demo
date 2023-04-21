@@ -101,7 +101,7 @@ We can expose the Developer Portal on the same host as our APIs, but this can al
 
 Our `PortalResource` selects the `RouteTables` (or API Products) to be added to the Developer Portal by labels, which forms the configuration that is exposed through our Developer Portal REST API. The front-end Developer Portal UI communicates with the Developer Portal via its REST API server.
 
-The above creates a flexible model in which we can easily implement concepts like segmented internal and external developer portals, or maybe something like a partner developer portal. In these models, multiple Portals can be deployed and mapped to different VirtualGateways. This allows you to map different VirtualGatways to different cloud-provider load-balancers to segment traffic and access. Another option would be to make both portals accessible via a public endpoint and to use an OIDC provider to define different security policies for these different portals. There are many different options and combinations.
+The above creates a flexible model in which we can easily implement concepts like segmented internal and external developer portals, or maybe something like a partner developer portal. In these models, multiple Portals can be deployed and mapped to different VirtualGateways. This allows you to map different VirtualGateways to different cloud-provider load-balancers to segment traffic and access. Another option would be to make both portals accessible via a public endpoint and to use an OIDC provider to define different security policies for these different portals. There are many different options and combinations.
 
 ---
 
