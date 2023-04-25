@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #export GLOO_VERSION=2.3.0-beta3-2023-04-03-main-c254de735
-export GLOO_VERSION=2.3.0-rc1
+export GLOO_VERSION=2.3.0
 
 export CLUSTER_NAME=gg-demo-single
 export CLUSTER_CTX=cluster1

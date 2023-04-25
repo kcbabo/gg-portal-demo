@@ -23,12 +23,6 @@ These demo instructions assume that you have mapped the IP addresses of these ho
 1.1.1.2 keycloak.example.com
 ```
 
-There is a bug in secret generation in RC1 where the `ext-auth-service-api-key-secret-key` secret is added to the wrong namespace. If you are running RC2 or later, you do not have to do this! Let's copy the secret to the correct namespace:
-
-```
-kubectl get secret ext-auth-service-api-key-secret-key --namespace=gloo-mesh -o yaml | sed 's/namespace: .*/namespace: gloo-mesh-addons/' | kubectl apply -f -
-```
-
 The install script also deploys a Keycloak instance to support OIDC login for the Dev Portal UI and API. We need to set up a client and some users, so run the `keycloak.sh` script to do that. NOTE: you must set the environment variable `KC_ADMIN_PASS` to the value of your Keycloak password (defaults to 'admin').
 ```
 export KC_ADMIN_PASS=<your password>
