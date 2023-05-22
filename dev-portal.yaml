@@ -14,6 +14,9 @@ spec:
     - selector:
         labels:
           app: gloo-mesh-portal-server
+  apis:
+    - labels:
+        portal: dev-portal
   # usagePlans:
   #    - name: bronze
   #      displayName: "Bronze Plan"
@@ -22,6 +25,4 @@ spec:
   #      description: "A better usage plan"
   #    - name: gold
   #      description: "The best usage plan!"
-  apis:
-    - labels:
-        portal: dev-portal
+  

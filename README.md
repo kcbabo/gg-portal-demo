@@ -23,20 +23,33 @@ These demo instructions assume that you have mapped the IP addresses of these ho
 1.1.1.2 keycloak.example.com
 ```
 
+The installation script also automatically downloads and installs the `meshctl` CLI. To have global access from the command line to this CLI, you should add the directory `$HOME/.gloo-mesh/bin` to your PATH system variable:
+```bash
+export PATH=$HOME/.gloo-mesh/bin:$PATH
+echo $PATH
+```
+
+There is a bug in secret generation in RC1 where the `ext-auth-service-api-key-secret-key` secret is added to the wrong namespace. If you are running RC2 or later, you do not have to do this! Let's copy the secret to the correct namespace:
+
+```
+kubectl get secret ext-auth-service-api-key-secret-key --namespace=gloo-mesh -o yaml | sed 's/namespace: .*/namespace: gloo-mesh-addons/' | kubectl apply -f -
+```
+
 The install script also deploys a Keycloak instance to support OIDC login for the Dev Portal UI and API. We need to set up a client and some users, so run the `keycloak.sh` script to do that. NOTE: you must set the environment variable `KC_ADMIN_PASS` to the value of your Keycloak password (defaults to 'admin').
 ```
 export KC_ADMIN_PASS=<your password>
 ./keycloak.sh
 ```
+
 Next, run the `init.sh` script to pre-provision your environment with some authentication, rate-limit policies, etc. (see the `init.sh` file for details). This file needs to be executed from the repo's root directory.
 ```bash
 cd ..
 ./install/init.sh
 ```
 
-Access Gloo Mesh dashboard using the `meshctl` CLI:
+Access Gloo Mesh dashboard using the `meshctl` CLI (make sure you've added the `meshctl` to your PATH system variable):
 ```bash
-./install/.gloo-mesh/bin/meshctl dashboard
+meshctl dashboard
 ```
 .... or, via kubectl
 ```bash
@@ -45,6 +58,30 @@ kubectl port-forward -n gloo-mesh svc/gloo-mesh-ui 8090:8090
 ```bash
 open http://localhost:8090
 ```
+
+---
+
+**Note**:
+
+If you're running this demo on a local Kubernetes cluster like _minikube_, the script might not provide a hostname for the Keycloak service and Ingress gateway. In that case you can, for example, create a tunnel to your cluster with `minikube tunnel` and map your local loopback address (i.e. 127.0.0.1) to the hosts mentioned earlier in /etc/hosts, e.g.
+
+```
+127.0.0.1 developer.example.com api.example.com keycloak.example.com
+
+```
+The second thing that you would need to do in such an environment is change the Keycloak URL in the installed authentication policy to point to the Kubernetes service DNS for the Keycloak service, and add this DNS name to your /etc/hosts file:
+
+Patch the authentication policy using the following command:
+```bash
+kubectl -n gloo-mesh patch ExtAuthPolicy oidc-auth --type "json" -p '[{"op":"replace","path":"/spec/config/glooAuth/configs/0/oauth2/oidcAuthorizationCode/issuerUrl","value":"http://keycloak.keycloak.svc.cluster.local:8080/realms/master/"}]'
+```
+
+Add the following line to your /etc/hosts file:
+```
+127.0.0.1 keycloack.keycloak.svc.cluster.local
+```
+
+This allows both the Gloo authentication server and your browser to communicate with the Keycloak identity provider.
 
 ---
 
@@ -64,7 +101,7 @@ We can expose the Developer Portal on the same host as our APIs, but this can al
 
 Our `PortalResource` selects the `RouteTables` (or API Products) to be added to the Developer Portal by labels, which forms the configuration that is exposed through our Developer Portal REST API. The front-end Developer Portal UI communicates with the Developer Portal via its REST API server.
 
-The above creates a flexible model in which we can easily implement concepts like segmented internal and external developer portals, or maybe something like a partner developer portal. In these models, multiple Portals can be deployed and mapped to different VirtualGateways. This allows you to map different VirtualGatways to different cloud-provider load-balancers to segment traffic and access. Another option would be to make both portals accessible via a public endpoint and to use an OIDC provider to define different security policies for these different portals. There are many different options and combinations.
+The above creates a flexible model in which we can easily implement concepts like segmented internal and external developer portals, or maybe something like a partner developer portal. In these models, multiple Portals can be deployed and mapped to different VirtualGateways. This allows you to map different VirtualGateways to different cloud-provider load-balancers to segment traffic and access. Another option would be to make both portals accessible via a public endpoint and to use an OIDC provider to define different security policies for these different portals. There are many different options and combinations.
 
 ---
 
@@ -146,10 +183,10 @@ Now that we have the API deployed, we can expose it to the outside world. This i
 The `tracks/tracks-api-rt.yaml` file contains the definition of the `RouteTable` that exposes the _Tracks_ API:
 
 ```bash
-cat track/tracks-api-rt.yaml
+cat tracks/tracks-api-rt.yaml
 ```
 
-The `portalMetadata` field in the `RouteTable` resource allows us to specify additional metadata about our API. The metadata is provided via the Gloo Portal REST API, and from there, can be exposed in the Developer Portal UI. This metadata can include fields like licence, title, description, service owner, data classification, etc.
+The `portalMetadata` field in the `RouteTable` resource allows us to specify additional metadata about our API. The metadata is provided via the Gloo Portal REST API, and from there, can be exposed in the Developer Portal UI. This metadata can include fields like _licence_, _title_, _description_, _service owner_, _data classification_, etc.
 
 The additional metadata will be inlined with the service's Swagger API definition.
 
@@ -187,7 +224,7 @@ The `api-example-com-rt.yaml` file defines the `RouteTable` resource that expose
 cat api-example-com-rt.yaml
 ```
 
-In the `api-example-rt.yaml` file, uncomment the `/trackapi` matcher and its `delegate` configuration. After you've saved these changes, apply the `RouteTable` resource:
+In the `api-example-rt.yaml` file, if not already done so, uncomment the `/trackapi` matcher and its `delegate` configuration. After you've saved these changes, apply the `RouteTable` resource:
 
 ```bash
 kubectl apply -f api-example-com-rt.yaml
@@ -228,51 +265,7 @@ curl -v api.example.com/trackapi/tracks
 <
 ```
 
-If we run the curl command with the correct API-key header, we get authenticated and authorized to access the service (The API-Key can be found in `policy/api-key.yaml`):
-
-```bash
-curl -v -H "api-key:N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" api.example.com/trackapi/tracks
-```
-
-#### Rate Limiting
-Another common API Management feature is **rate limiting**. Gloo implements rate-limiting via _Usage Plans_, which specify the tier of access given to clients. To apply a rate-limiting policy to our _Tracks_ API, we apply the `policy/rl-policy.yaml` file. This policy uses labels to apply the policy to routes. In this demo, all routes with the label `usagePlans: dev-portal` will get the policy applies. This includes our _Tracks_ API route.
-
-```bash
-kubectl apply -f policy/rl-policy.yaml
-```
-
-Note that our API Key has the `silver` usage plan configured, as can be seen in the `policy/api-key.yaml` file:
-
-```bash
-cat policy/api-key.yaml
-```
-
-The `silver` usage plan is configured to allow 3 requests per minute, as can be seen in the rate-limiting configuration file `policy/rl-config.yaml`:
-```bash
-cat policy/rl-config.yaml
-```
-
-When we now try to access the _Tracks_ API multiple times per minute, we will see that we will get rate limited at the 3rd attempt, and get a _429 Too Many Requests_ error returned:
-```bash
-curl -v -H "api-key:N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" api.example.com/trackapi/tracks
-```
-```bash
-*   Trying 127.0.0.1:80...
-* Connected to api.example.com (127.0.0.1) port 80 (#0)
-> GET /trackapi/tracks HTTP/1.1
-> Host: api.example.com
-> User-Agent: curl/7.86.0
-> Accept: */*
-> api-key:N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy
->
-* Mark bundle as not supporting multiuse
-< HTTP/1.1 429 Too Many Requests
-< x-envoy-ratelimited: true
-< date: Wed, 29 Mar 2023 14:53:39 GMT
-< server: istio-envoy
-< content-length: 0
-<
-```
+Later in this demo we will generate the API-key that will grant us access to the API.
 
 ---
 
@@ -299,13 +292,13 @@ The Portal automatically creates the `PortalConfig` resources from the existing 
 kubectl get PortalConfig -A
 ```
 ```bash
-kubectl -n gloo-mesh-addons get PortalConfig developer-portal-gloo-mesh-addons-gg-demo-single -o yaml
+kubectl -n gloo-mesh get PortalConfig developer-portal-gloo-mesh-gg-demo-single -o yaml
 ```
 
 Note that the APIDoc that is referenced by the PortalConfig is a stitched API:
 
 ```bash
-kubectl -n gloo-mesh-addons get apidoc tracks-rt-stitched-openapi-gg-demo-single-gloo-mesh-gateways-gg-demo-single -o yaml
+kubectl -n gloo-mesh get apidoc tracks-rt-stitched-openapi-gg-demo-single-gloo-mesh-gateways-gg-demo-single -o yaml
 ```
 
 This schema is stitched from all the `APIDoc` resources that are exposed via a given `RouteTable`. In the case of the _Tracks_ API, this is only a single `APIDoc`.
@@ -329,6 +322,7 @@ open http://developer.example.com
 ```
 
 In the Developer Portal UI we can view all the APIs that have been exposed via our Developer Portal and too which we have access (authentication and authorization flows to be added later).
+
 Click on the _Tracks_ API to get the OpenAPI doc from which you can inspect all the RESTful resources and the operations that the API exposes.
 
 NOTE: A login flow has not been implemented yet in this Developer Portal UI Starter application. Once authentication has been implemented,  users have an identity and then can look the usage plans for the APIs and generate API keys.
@@ -388,3 +382,114 @@ kubectl apply - f petstore/petstore-rt.yaml
 ```
 
 Go back to the Dev Portal UI at http://developer.example.com and notice that our _Petstore_ API Product now contains 2 additional RESTful Resources, `/user` and `/store`.
+
+
+#### Usage Plans
+
+To use our APIs, we will need to create API-keys in order to be able to access them (remember that we had secured our _Tracks_ REST API earlier,  where we got a _401 - Unauthorized_ when we tried to access it). In Gloo Portal, API-keys are bound to _Usage Plans_. A _Usage Plane_ defines a policy or set of policies that the usage of the service. The most common use-case is rate limiting.
+
+In the Dev Portal UI at http://developer.example.com, click on the _Login_ button in the upper right corner. This should bring you to the Keycloak login screen. Login with username `user1` and password `password`. After you've logged in, click on your username in the upper right corner (this should say _User1_) and click on _API Keys_ to navigate to the _API Keys_ screen. You will our 2 APIs listed, _Tracks_ (Catstronauts) and _Petstore_. You can also see that there are zero _Plans_ defined for these APIs, and hence, we cannot yet create any API Keys. So let's first enable the plans for our APIs by applying the rate-limit policies to our API Products/RouteTables.
+
+
+Gloo implements rate-limiting via _Usage Plans_, which specify the tier of access given to clients. We first need to enable the _Usage Plans_ in our Portal. Open the `dev-portal.yaml` file and uncomment the `usagePlans` configuration section. Save the file and re-apply it:
+
+```bash
+kubectl apply -f dev-portal.yaml
+```
+
+Refresh the Dev Portal UI. In the _API Usage Plans & Keys_ screen at http://developer.example.com/usage-plans, you will still see zero plans available for both our _Tracks_ and _Petstore_ API. This is because we have on yet applied the required rate-limiting policies to our APIs. Let's apply a policy to our _Tracks_ API.
+
+To apply a rate-limiting policy to our _Tracks_ API, we apply the `policy/rl-policy.yaml` file. This policy uses labels to apply the policy to routes. In this demo, all routes with the label `usagePlans: dev-portal` will get the policy applies. This includes our _Tracks_ API route.
+
+```bash
+kubectl apply -f policy/rl-policy.yaml
+```
+
+We can verify that the policy has been applied to our _Tracks_ API Product by checking the status of the RouteTable:
+
+```bash
+kubectl -n gloo-mesh-gateways get routetable tracks-rt -o yaml
+```
+
+In the `status` section of the output, we can see that both the security policy and trafficcontrol policy have been applied:
+
+```
+numAppliedRoutePolicies:
+    security.policy.gloo.solo.io/v2, Kind=ExtAuthPolicy: 1
+    trafficcontrol.policy.gloo.solo.io/v2, Kind=RateLimitPolicy: 1
+```
+
+When we now refresg the Dev Portal UI _API Usage Plans & Keys_ screen at http://developer.example.com/usage-plans, we see that there are 3 _Usage Plans_ available for our _Tracks_ (_Catstronauts_) API.
+
+
+### Private APIs
+
+We have seen that, without being logged in to the Dev Portal UI, we could see all the APIs that were available on the Portal, There can be situations in which you want your public APIs to be seen by any user, whether they're logged into the Portal or not, and other, private APIs, be shielded from users that are not authenticated to the Portal. In that case, we can set an API to "private", and only allow acess to certain users. Let's logout of the Dev Portal UI and explore how we can make some of our APIs private. If you're logged in, click on the logout button in the upper right of the Dev Portal UI,
+
+In the Portal definition, we've already configured a label that allows us to make certain API Products private. Using the `privateAPILabels` configuration, we can configure which labels will mark an API Product/RouteTable as private. In our demo, this label is `portal-visibility: private`, as can be seen in the `dev-portal.yaml` file:
+
+```bash
+cat dev-portal.yaml
+```
+
+When we apply this configuration to our _Tracks_ API Product/RouteTable, we can see that the product disappears from the Dev Portal UI:
+
+```bash
+kubectl -n gloo-mesh-gateways patch routetable tracks-rt --type "json" -p '[{"op":"add","path":"/metadata/labels/portal-visibility","value":"private"}]'
+```
+
+Let's login to the Portal to see if we can get access to the _Tracks_ API again. In the Dev Portal UI at http://developer.example.com, click on the _Login_ button in the upper right corner. This should bring you to the Keycloak login screen. Login with username `user1` and password `password`. After succesfully logging in, you should be redirected to the Dev Portal UI. Click on the _APIs_ button in the top-right corner and observe that the _Tracks_ API is still not visible. This is because, when API Products are marked as private, we need define which users can access it. This is done via a `PortalGroup` configuration.
+
+We've provided a pre-configured `PortalGroup` configuration in the demo. Open the file `portal-group.yaml` to see the details:
+
+```bash
+cat portal-group.yaml`
+```
+
+We can see that users that have a `group` claim in their identity token (JWT) with the value `users` are granted access to the APIs with the label `api: tracks` (which is a label on our _Tracks_ RouteTable). We can also see that these users have access to the `bronze`, `silver` and `gold` plans, and thus can generate API-Keys for them. Let's apply the `PortalGroup` configuration to see if we get access to the _Tracks_ API again.
+
+```bash
+kubectl apply -f portal-group.yaml
+```
+
+When we look at the Dev Portal UI again, we can see that the _Tracks_ API has appeared again, and we can create API keys for all 3 available plans, `bronze`, `silver` and `gold`.
+
+#### Creating API-Keys
+
+To access our service based on a _Usage Plan_, we need to create an API-Key. Navigate back to the Dev Portal UI _API Usage Plans & Keys_ screen at http://developer.example.com/usage-plans, and expand the _Tracks_/_Catstronaus_ REST API. Add an API-Key to the _Silver Plan (3 Requests per MINUTE)_ by clicking on the _+ ADD KEY_ button. In the _Generate a New Key_ modal that opens, specify the name of your API Key. This can be any name that you would like to use. Click on the _Generate Key_ button. Copy the generated key to a save place. Note the warning that states that this key will only be displayed once. If you loose it, you will not be able to retrieve it and you will have to generate a new one.
+
+With our API Key, we can now access our _Tracks_ REST API again. Call the service using the following `cURL` command, replacing the `{api-key}` placeholder with the API-Key you just generated:
+
+```bash
+curl -v -H "api-key:{api-key}" api.example.com/trackapi/tracks
+```
+
+Your request will now be properly authenticated and authorized and you will receive a list of tracks from the service.
+
+Our _Usage Plan_ also provides rate-limiting of the requests per API-key. Call the _Tracks_ API a number of times in a row, and observe that after 3 calls per minute your request will be rate-limited and you will receive a _429 - Too Many Requests_ HTTP error from the platform:
+
+```bash
+curl -v -H "api-key:{api-key}" api.example.com/trackapi/tracks
+```
+```bash
+*   Trying 127.0.0.1:80...
+* Connected to api.example.com (127.0.0.1) port 80 (#0)
+> GET /trackapi/tracks HTTP/1.1
+> Host: api.example.com
+> User-Agent: curl/7.86.0
+> Accept: */*
+> api-key:N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 429 Too Many Requests
+< x-envoy-ratelimited: true
+< date: Wed, 29 Mar 2023 14:53:39 GMT
+< server: istio-envoy
+< content-length: 0
+<
+```
+
+---
+
+
+

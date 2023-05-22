@@ -4,6 +4,11 @@ set +e +x
 
 source ./env.sh
 
+# clean up Keycloak
+kubectl -n keycloak delete service keycloak
+kubectl -n keycloak delete deployment keycloak
+kubectl delete ns keycloak
+
 # clean up Istio resources
 kubectl delete GatewayLifecycleManager istio-ingressgateway -n gloo-mesh
 kubectl delete IstioLifecycleManager gloo-platform -n gloo-mesh
