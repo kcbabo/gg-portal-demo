@@ -1,0 +1,28 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: Portal
+metadata:
+  name: partner-developer-portal
+  namespace: gloo-mesh-addons
+spec:
+  visibility:
+    public: true
+    privateAPILabels:
+      portal-visibility: private
+  domains:
+    - developer.partner.example.com
+  portalBackendSelectors:
+    - selector:
+        labels:
+          app: gloo-mesh-portal-server
+  apis:
+    - labels:
+        portal: partner-dev-portal
+  usagePlans:
+     - name: bronze
+       displayName: "Bronze Plan"
+       description: "A basic usage plan"
+     - name: silver
+       description: "A better usage plan"
+     - name: gold
+       description: "The best usage plan!"
+  

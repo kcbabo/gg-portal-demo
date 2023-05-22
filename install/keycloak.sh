@@ -6,6 +6,7 @@ source ./env.sh
 export KEYCLOAK_CLIENT_ID=portal-client
 #export KEYCLOAK_URL=http://ae627d5f61abb45faa655974e01615da-1346174541.us-east-1.elb.amazonaws.com:8080/auth
 export KEYCLOAK_URL=http://$KEYCLOAK_HOST:8080
+echo "Keycloak URL: $KEYCLOAK_URL"
 export APP_URL=http://$PORTAL_HOST
 #export APP_URL=http://a928c50c0d9c8455aad8ef7ba2c37324-734996679.us-east-1.elb.amazonaws.com
 
@@ -69,6 +70,74 @@ spec:
               clientId: ${KEYCLOAK_CLIENT_ID}
               clientSecretRef:
                 name: oauth
+                namespace: gloo-mesh-addons
+              issuerUrl: $KEYCLOAK_URL/realms/master/
+              logoutPath: /portal-server/v1/logout
+              scopes:
+                - email
+              # you can change the session config to use redis if you want
+              session:
+                failOnFetchFailure: true
+                cookie:
+                  allowRefreshing: true
+                cookieOptions:
+                  notSecure: true
+                  maxAge: 3600
+              headers:
+                idTokenHeader: id_token
+EOF
+
+
+
+#### Creating a second ExtAuthPolicy for another portal.
+
+export PARTNER_KEYCLOAK_CLIENT_ID=partner-portal-client
+export PARTNER_APP_URL=http://$PARTNER_PORTAL_HOST
+
+# Register the client
+read -r regid secret <<<$(curl -k -X POST -d "{ \"clientId\": \"${PARTNER_KEYCLOAK_CLIENT_ID}\" }" -H "Content-Type:application/json" -H "Authorization: bearer ${KEYCLOAK_TOKEN}" ${KEYCLOAK_URL}/realms/master/clients-registrations/default|  jq -r '[.id, .secret] | @tsv')
+export PARTNER_KEYCLOAK_SECRET=${secret}
+export REG_ID=${regid}
+curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"serviceAccountsEnabled": true, "directAccessGrantsEnabled": true, "authorizationServicesEnabled": true, "redirectUris": ["http://developer.partner.example.com/portal-server/v1/login"]}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
+
+[[ -z "$PARTNER_KEYCLOAK_SECRET" || $PARTNER_KEYCLOAK_SECRET == null ]] && { echo "Faled to create client in Keycloak"; exit 1;}
+
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: partner-oauth
+  namespace: gloo-mesh-addons
+type: extauth.solo.io/oauth
+data:
+  client-secret: $(echo -n ${PARTNER_KEYCLOAK_SECRET} | base64)
+EOF
+
+kubectl apply -f - <<EOF
+apiVersion: security.policy.gloo.solo.io/v2
+kind: ExtAuthPolicy
+metadata:
+  name: partner-oidc-auth
+  namespace: gloo-mesh
+spec:
+  applyToRoutes:
+    - route:
+        labels:
+          partner-oauth: "true"
+  config:
+    server:
+      name: ext-auth-server
+      namespace: gloo-mesh-addons
+      cluster: ${CLUSTER_NAME}
+    glooAuth:
+      configs:
+        - oauth2:
+            oidcAuthorizationCode:
+              appUrl: $PARTNER_APP_URL
+              callbackPath: /portal-server/v1/login
+              clientId: ${PARTNER_KEYCLOAK_CLIENT_ID}
+              clientSecretRef:
+                name: partner-oauth
                 namespace: gloo-mesh-addons
               issuerUrl: $KEYCLOAK_URL/realms/master/
               logoutPath: /portal-server/v1/logout
