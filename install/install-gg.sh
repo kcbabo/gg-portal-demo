@@ -17,14 +17,14 @@ $MESHCTL_BIN/meshctl version
 
 # install CRDs
 echo "Installing Gloo Gateway CRDs ..."
-helm install gloo-platform-crds gloo-platform/gloo-platform-crds \
+helm upgrade --install gloo-platform-crds gloo-platform/gloo-platform-crds \
    --namespace=gloo-mesh \
    --create-namespace \
    --version $GLOO_VERSION
 
 # install GG with addons
 echo "Installing Gloo Gateway ..."
-helm install gloo-platform gloo-platform/gloo-platform \
+helm upgrade --install gloo-platform gloo-platform/gloo-platform \
    --namespace gloo-mesh \
    --version $GLOO_VERSION \
    --values gloo-gateway-single.yaml \
