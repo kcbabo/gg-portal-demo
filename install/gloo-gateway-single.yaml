@@ -8,6 +8,7 @@ glooMgmtServer:
   serviceType: ClusterIP
   registerCluster: true
   enabled: true
+  createGlobalWorkspace: true
 glooUi:
   enabled: true
 istioInstallations:
