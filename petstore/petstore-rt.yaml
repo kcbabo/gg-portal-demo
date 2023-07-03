@@ -1,17 +1,23 @@
 apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
-  name: petstore-rt
+  name: petstore-rt-1.0.0
   namespace: gloo-mesh-gateways
   labels:
      portal: dev-portal
      api: petstore
 spec:
   portalMetadata:
+    apiProductId: Petstore
+    apiVersion: 1.0.0
     title: Petstore REST API
     description: Totally awesome API for all things pets!
+    contact: petstore-support@solo.io
   http:
   - name: pets-api
+    labels:
+      usagePlans: dev-portal
+      cors-policy: api
     matchers:
     - uri:
         prefix: /pet

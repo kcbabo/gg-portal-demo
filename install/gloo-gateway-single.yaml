@@ -1,5 +1,7 @@
 common:
   cluster: cluster-1
+# demo:
+#   manageAddonNamespace: true
 glooAgent:
   enabled: true
   relay:
@@ -34,18 +36,26 @@ rateLimiter:
     watchNamespace: gloo-mesh-addons
 extAuthService:
   enabled: true
-  extAuth: 
-    apiKeyStorage: 
+  extAuth:
+    apiKeyStorage:
       name: redis
-      config: 
-        connection: 
-          host: redis.gloo-mesh-addons:6379
+      enabled: true
+      config:
+        db: 0
+        host: redis.gloo-mesh-addons:6379
       secretKey: xyz987
+  # image:
+  #   pullPolicy: IfNotPresent
+  #   registry: us-docker.pkg.dev/solo-test-236622
+  #   repository: vm-test/ext-auth-service
+  #   tag: 0.39.0-1-gb5e8bdf
 glooPortalServer:
   enabled: true
   apiKeyStorage:
-    type: redis
-    config:
-      host: redis.gloo-mesh-addons:6379
+    configPath: /etc/redis-client-config/config.yaml
     secretKey: xyz987
-    configPath: /etc/redis/config.yaml
+    redis:
+      enabled: true
+      address: redis.gloo-mesh-addons:6379
+      auth:
+        enabled: false

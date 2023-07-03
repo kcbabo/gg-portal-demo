@@ -1,0 +1,62 @@
+apiVersion: security.policy.gloo.solo.io/v2
+kind: ExtAuthPolicy
+metadata:
+  name: oidc-with-access-token
+  namespace: gloo-mesh
+spec:
+  applyToRoutes:
+    - route:
+        labels:
+          oauth: "true"
+  config:
+    server:
+      name: ext-auth-server
+      namespace: gloo-mesh-addons
+      cluster: gg-demo-single
+    glooAuth:
+      configs:
+        - name: bearerAuth
+          oauth2:
+            #
+            # The accessTokenValidation can be used with the developer-example-com-rt.yaml file,
+            # when the frontend app is deployed anywhere, including outside kubernetes.
+            #
+            accessTokenValidation:
+              jwt:
+                #
+                # This accessTokenValidation section should be able to use remoteJwks,
+                # but if there are problems with fetching the jwks, this inlineString approach
+                # can be used. The inline string contents were copied from:
+                # {{ keycloak-url }}/auth/realms/master/protocol/openid-connect/certs
+                #
+                # localJwks:
+                #   inlineString: >-
+                #     {"keys":[{"kid":"L-N5Dfjwx3vhPjK8giwls51mbaBlHZ_nt4vi9JCDEaU","kty":"RSA","alg":"RS256","use":"sig","n":"tqCcye0KIvnjiczKq0PofQ4QyUuqitMAXMd-H3jrvJyz7cKiCLyHESyIEwHiajXjZ4qFSu3SuKkI_5iCpgd0GxCj3wFG9oDpCHy_YZ07bd7gtvDdG5sXIXFM6nvYQONQPwCKK0nnvCzbvnUTJEoX39k9eZWpySdhs7VgKFKQGfexkSoLiXSPCYjjrPfQ5E5Gz-iVCgKjrjRaEEiLHRBK9FiGsndx82e3WkPf954jum8aSL_QpzN9WmaVPdD22-oj1xATIQ-KlZac-h7Ym6AO174YOcRbCVfQ2AU1yPcjenbNOA4AUM7fVfSsejeZ9txw1FiGJmas7ynL1Uv6ryIBzQ","e":"AQAB","x5c":["MIICmzCCAYMCBgGIsVxAITANBgkqhkiG9w0BAQsFADARMQ8wDQYDVQQDDAZtYXN0ZXIwHhcNMjMwNjEyMjA0NDUyWhcNMzMwNjEyMjA0NjMyWjARMQ8wDQYDVQQDDAZtYXN0ZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC2oJzJ7Qoi+eOJzMqrQ+h9DhDJS6qK0wBcx34feOu8nLPtwqIIvIcRLIgTAeJqNeNnioVK7dK4qQj/mIKmB3QbEKPfAUb2gOkIfL9hnTtt3uC28N0bmxchcUzqe9hA41A/AIorSee8LNu+dRMkShff2T15lanJJ2GztWAoUpAZ97GRKguJdI8JiOOs99DkTkbP6JUKAqOuNFoQSIsdEEr0WIayd3HzZ7daQ9/3niO6bxpIv9CnM31aZpU90Pbb6iPXEBMhD4qVlpz6HtiboA7Xvhg5xFsJV9DYBTXI9yN6ds04DgBQzt9V9Kx6N5n23HDUWIYmZqzvKcvVS/qvIgHNAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAIIGarUZVrIp2RLmIMxarnsxjfCxmZrjpIw+84Gf+cgFh3omDsvcWF+Ux5vjQHgPdTVRhhtYP/tOdGgc/wrkSGkOO6jCYxn5Kq99QSbWRlGOAi5VswP/93uYhxEcsXchUO67rycfpQSEC/LaTKol5kS9o9xMqRCgIbbNVKcHUo+thtqViWipHwXM6Tret4c+vsEmoDDqtQlFJHgaXgRShQsV61FZ4VCgT0gySOx12Fo65NZrmU2gIZGZFgK1AbF4TP+S0lBdjybQ0/FeQ7dbyEItysTvtbJ8CTmrs61+h5v6bvXBxdeM1uNvZlY4wxQQPuJTgHPQpH7IPRzbsb9hKyQ="],"x5t":"wnudmasZU2Qbilh2Y9S2tYngW7U","x5t#S256":"b5fWxOCyHGyBOnkclPY2lICIOcjq2DzkWroimK2YEjM"},{"kid":"Q7fa0sUt5nYIpq3HpMEzjc886PIUITOg4xPy4dcZnEA","kty":"RSA","alg":"RSA-OAEP","use":"enc","n":"lg_iHgIXIIMXutSGQJbnlHI2b6WC9QM_1NGVuE-9IYDJdUBHv89bgqeLiCfEBiEx9UQ7OFavkRv1pMCx2CU72xNGFEIHTLblUMknuy1Wo40V1MwEVdWaA_FEFtKQ95GB2kFidZarT-G5NZs8xWBTpt1CTqYt67NzgOmZieujmnax_wbnUclpDe8vgIQigk0xNkHw7iZ1XiF4A3jC83I503yrQUmYOvZfjWzJxxc5GBpd5ttv4dz1hyGnSxOUiSM21HYFxTspkDUfVdPEpZe97lrmHSwlMVzF1bivXERDyWyM7PYBcJMoVhCxiIiqPwk4eIXkgSfBnEMkkWchapRQPQ","e":"AQAB","x5c":["MIICmzCCAYMCBgGIsVxCKDANBgkqhkiG9w0BAQsFADARMQ8wDQYDVQQDDAZtYXN0ZXIwHhcNMjMwNjEyMjA0NDUzWhcNMzMwNjEyMjA0NjMzWjARMQ8wDQYDVQQDDAZtYXN0ZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCWD+IeAhcggxe61IZAlueUcjZvpYL1Az/U0ZW4T70hgMl1QEe/z1uCp4uIJ8QGITH1RDs4Vq+RG/WkwLHYJTvbE0YUQgdMtuVQySe7LVajjRXUzARV1ZoD8UQW0pD3kYHaQWJ1lqtP4bk1mzzFYFOm3UJOpi3rs3OA6ZmJ66OadrH/BudRyWkN7y+AhCKCTTE2QfDuJnVeIXgDeMLzcjnTfKtBSZg69l+NbMnHFzkYGl3m22/h3PWHIadLE5SJIzbUdgXFOymQNR9V08Sll73uWuYdLCUxXMXVuK9cREPJbIzs9gFwkyhWELGIiKo/CTh4heSBJ8GcQySRZyFqlFA9AgMBAAEwDQYJKoZIhvcNAQELBQADggEBAFhQcAtF9wG1CsrKUZwajzK6LM2pYu2nGHUblhDXhWHjR3PshuWBZXBl8ugcnZMuRDw8xF9fGOczDN+MT6wQZj9cma2rOTznacVDsNyXQySR8X6NaDkBkJnCfU4QjF/P7BJk6F1ffJ0oNbBX2tOeKfZdrbRNsFPt8NZMKWMvJ9l9YW1WIgI/8YE+JhypyM/0pLQ+yOg/2JB3/f+lSlkZ+ZvQQ+9893mog/I7fU4dDtANQ533fMqhrj1hx8H/CcnLLzlq950uAt1O5+UY5eEXZ/zCvE1ONzQ+B/daBgc3gV7XSkuj9VFww3+uwxQ6qQyf5b8P7LegfEewQ9gMGAZADxc="],"x5t":"beWffDW5Ktbbh3OHXN7q-BIhILM","x5t#S256":"js5QntslwQ3q-4KbG_eGjDtNNx54O2BGlg2b07-2l4w"}]}
+                remoteJwks:
+                  url: http://keycloak.keycloak.svc.cluster.local/realms/master/protocol/openid-connect/certs
+        #
+        # The oidcAuthorizationCode can be used with the portal-frontend-rt.yaml file,
+        # when the frontend app is a deployment in kubernetes.
+        #
+        # - name: idTokenAuth
+        #   oauth2:
+        #     oidcAuthorizationCode:
+        #       appUrl: http://localhost:31080
+        #       callbackPath: /portal-server/v1/login
+        #       logoutPath: /portal-server/v1/logout
+        #       clientId: 90e7f16e-76e8-42e0-a0fb-2f8a00a874a0
+        #       clientSecretRef:
+        #         name: oauth
+        #         namespace: gloo-mesh-addons
+        #       issuerUrl: https://5cac-2600-1700-1e17-8010-1980-c118-8d09-9ed9.ngrok-free.app/auth/realms/master/
+        #       scopes:
+        #         - email
+        #       session:
+        #         failOnFetchFailure: true
+        #         cookie:
+        #           allowRefreshing: true
+        #         cookieOptions:
+        #           notSecure: true
+        #           maxAge: 3600
+        #       headers:
+        #         idTokenHeader: id_token

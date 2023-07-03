@@ -4,6 +4,13 @@ set +x -e
 
 source ./env.sh
 
+# Check that required env-vars have been set.
+if [ -z "$GLOO_GATEWAY_LICENSE_KEY" ]
+then
+      echo "The 'GLOO_GATEWAY_LICENSE_KEY' environment variable is empty. This environment variable, set to a valid Gloo Gateway License Key, is required to run the installation."
+      exit 1
+fi
+
 kubectl create ns gloo-mesh || true
 kubectl create ns gloo-mesh-addons || true
 
@@ -55,9 +62,14 @@ metadata:
   namespace: ${GATEWAY_NAMESPACE}
 spec:
   listeners:
-    - port:
+    - http: {}
+      port:
         number: 80
-      http: {}
+      allowedRouteTables:
+        - host: api.example.com
+        - host: developer.example.com
+        - host: developer.partner.example.com
+        - host: keycloak.example.com
   workloads:
   - selector:
       labels:
@@ -71,10 +83,13 @@ GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath
 [[ -z "$GW_HOST" ]] && { GW_HOST=$(kubectl get svc -n gloo-mesh-gateways istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}');}
 printf "\nIngress gateway hostame: %s\n" $GW_HOST
 
+pushd ../misc
 printf "\nInstalling Keycloak\n"
 kubectl create ns keycloak
-kubectl -n keycloak create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/21.0.2/kubernetes-examples/keycloak.yaml
+#kubectl -n keycloak create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/21.0.2/kubernetes-examples/keycloak.yaml
+kubectl -n keycloak create -f keycloak.yaml
 kubectl -n keycloak rollout status deploy/keycloak
 KC_HOST=$(kubectl -n keycloak get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 [[ -z "$KC_HOST" ]] && { KC_HOST=$(kubectl -n keycloak get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].ip}');}
 printf "\nKeycloak service hostname: %s\n" $KC_HOST
+popd

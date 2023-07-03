@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: portal-frontend
+  name: partner-portal-frontend
   namespace: gloo-mesh-addons
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: portal-frontend
+  name: partner-portal-frontend
   namespace: gloo-mesh-addons
   labels:
     app: portal-frontend
@@ -18,27 +18,27 @@ spec:
       port: 4000
       targetPort: 4000
   selector:
-    app: portal-frontend
+    app: partner-portal-frontend
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: portal-frontend
+  name: partner-portal-frontend
   namespace: gloo-mesh-addons
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: portal-frontend
+      app: partner-portal-frontend
   template:
     metadata:
       labels:
-        app: portal-frontend
+        app: partner-portal-frontend
     spec:
       serviceAccountName: portal-frontend
       containers:
         #- image: kcbabo/portal-frontend-nick:latest
-        - image: duncandoyle/portal-frontend:latest
+        - image: portal-frontend:1.36
           args: ["--host", "0.0.0.0"]
           #imagePullPolicy: Always
           imagePullPolicy: IfNotPresent
