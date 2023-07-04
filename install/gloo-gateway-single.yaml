@@ -44,11 +44,6 @@ extAuthService:
         db: 0
         host: redis.gloo-mesh-addons:6379
       secretKey: xyz987
-  # image:
-  #   pullPolicy: IfNotPresent
-  #   registry: us-docker.pkg.dev/solo-test-236622
-  #   repository: vm-test/ext-auth-service
-  #   tag: 0.39.0-1-gb5e8bdf
 glooPortalServer:
   enabled: true
   apiKeyStorage:

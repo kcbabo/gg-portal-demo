@@ -29,12 +29,22 @@ helm upgrade --install gloo-platform-crds gloo-platform/gloo-platform-crds \
    --create-namespace \
    --version $GLOO_VERSION
 
+GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single.yaml
+
+if [ "$API_ANALYTICS_ENABLED" = true ] ; then
+  GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-api-analytics.yaml
+  echo "\nInstalling Clickhouse password authentication secret.\n"
+  kubectl apply -f clickhouse-auth-secret.yaml
+fi
+
+echo "\nUsing Helm values file: $GLOO_GATEWAY_HELM_VALUES_FILE\n."
+
 # install GG with addons
 echo "Installing Gloo Gateway ..."
 helm upgrade --install gloo-platform gloo-platform/gloo-platform \
    --namespace gloo-mesh \
    --version $GLOO_VERSION \
-   --values gloo-gateway-single.yaml \
+   --values $GLOO_GATEWAY_HELM_VALUES_FILE \
    --set common.cluster=$CLUSTER_NAME \
    --set licensing.glooGatewayLicenseKey=$GLOO_GATEWAY_LICENSE_KEY
 
