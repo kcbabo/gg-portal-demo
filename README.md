@@ -516,5 +516,22 @@ If you've installed the demo with the API Usage and Analytics feature enabled (t
 open http://grafana.example.com
 ```
 
+Use the username `admin` and password `admin` to login. When asked to change the password, click on `Skip` at the bottom of the modal.
+
+To access the Gloo Platform Portal dashboard, click on the hamburger menu in the top left and click on `Dashoards`. Click on `General` folder icon and click on `API Dashboard`, which will open the Gloo Platform Portal dashboard.
+
+In this dashboard the user can see various metrics and information about the API Products and APIs, including:
+* Total Requests
+* Total Active Users
+* Error Count
+* Top API Consumers
+* Request Latency
+* API Response Status Codes
+* etc.
+
+Furthermore, the dashboard contains various powerful filters (top of the screen) that allows a user to select that specific information that they are interested in. 
+
+> **Note**
+> The `User ID` filter only shows the first 100 user ids of the top API consumers. This dropdown can be filtered by using `Filter Users` filter to select that specific `User ID` you're interested in, if that id is not in the top 100 API consumers list.
 
 
