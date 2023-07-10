@@ -114,7 +114,8 @@ metadata:
   name: grafana
   namespace: gloo-mesh
 spec:
-  type: LoadBalancer
+  # type: LoadBalancer
+  type: ClusterIP
   ports:
   - port: 3000
     targetPort: 3000

@@ -31,9 +31,9 @@ Note that the install script will print the hostname values of the Ingress gatew
 Ingress gateway hostame:
 ```
 
-These demo instructions assume that you have mapped the IP addresses of this host to `developer.example.com`, `api.example.com`, and `keycloak.example.com` in /etc/hosts, e.g.
+These demo instructions assume that you have mapped the IP addresses of this host to `developer.example.com`, `api.example.com`, `keycloak.example.com` and `grafana.example.com` in /etc/hosts, e.g.
 ```
-1.1.1.1 developer.example.com api.example.com keycloak.example.com
+1.1.1.1 developer.example.com api.example.com keycloak.example.com grafana.example.com
 ```
 
 The installation script also automatically downloads and installs the `meshctl` CLI. To have global access from the command line to this CLI, you should add the directory `$HOME/.gloo-mesh/bin` to your PATH system variable:
@@ -506,4 +506,15 @@ curl -v -H "api-key:{api-key}" api.example.com/trackapi/tracks
 ```
 
 ---
+
+
+#### API Usage and Analytics
+
+If you've installed the demo with the API Usage and Analytics feature enabled (the default), here is a Grafana dashboard available at `http://grafana.example.com`:
+
+```bash
+open http://grafana.example.com
+```
+
+
 

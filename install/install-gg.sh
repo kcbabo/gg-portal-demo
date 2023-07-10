@@ -84,6 +84,7 @@ spec:
         - host: developer.example.com
         - host: developer.partner.example.com
         - host: keycloak.example.com
+        - host: grafana.example.com
   workloads:
   - selector:
       labels:
@@ -105,7 +106,7 @@ kubectl -n keycloak create -f misc/keycloak.yaml
 kubectl -n keycloak rollout status deploy/keycloak
 KC_HOST=$(kubectl -n keycloak get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 [[ -z "$KC_HOST" ]] && { KC_HOST=$(kubectl -n keycloak get svc keycloak -o jsonpath='{.status.loadBalancer.ingress[0].ip}');}
-printf "\nKeycloak service hostname: %s\n" $KC_HOST
+printf "\nKeycloak service hostname: %s\n\n" $KC_HOST
 
 kubectl apply -f keycloak-example-com-rt.yaml
 
@@ -114,6 +115,7 @@ if [ "$API_ANALYTICS_ENABLED" = true ] ; then
   printf "\nAPI Usage & Analytics: Deploying Grafana and Grafana Dashboards.\n"
   kubectl apply -f misc/dashboards.yaml
   kubectl apply -f misc/grafana.yaml
+  kubectl apply -f grafana-example-com-rt.yaml
 fi
 popd
 

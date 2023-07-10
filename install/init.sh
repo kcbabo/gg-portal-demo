@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source ./env.sh
-
 pushd ../
 
 kubectl create ns tracks
