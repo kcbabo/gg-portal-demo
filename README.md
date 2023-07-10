@@ -534,4 +534,12 @@ Furthermore, the dashboard contains various powerful filters (top of the screen)
 > **Note**
 > The `User ID` filter only shows the first 100 user ids of the top API consumers. This dropdown can be filtered by using `Filter Users` filter to select that specific `User ID` you're interested in, if that id is not in the top 100 API consumers list.
 
+The API Analytics feature is based on the Gloo Gateway/Envoy access logs, and an OpenTelemetry pipeline that receives the access log information and exports it to a Clickhouse datastore. You can inspect the log information used by the API Analytics feature by look at the Gloo Gateway access logs (replace {id} with t):
 
+```bash
+kubectl -n gloo-mesh-gateways logs -f deployments/istio-ingressgateway-1-17-2
+```
+
+#### GitOps
+
+**TODO**
