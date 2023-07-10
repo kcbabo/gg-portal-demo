@@ -2,6 +2,21 @@
 
 ## Installation
 
+This demo comes with a number of components, including:
+* Gloo Platform Portal
+* DevPortal UI (front-end)
+* Backstage Internal Development Platform
+* API Usage and Analytics with OTel and Grafana
+
+The latter two features, Backstage and API Analytics can be enabled/disabled via configuration option in the `./install/env.sh` script. To enable/disable these features, please configure the following environment variables in that script:
+```bash
+export API_ANALYTICS_ENABLED=false
+export BACKSTAGE_ENABLED=false
+```
+Note that these features enabled by default.
+
+---
+
 This repository comes with a number of installation scripts that allow you to easily deploy this demo to a Kubernetes cluster.
 
 First, we need to to run the `install-gg.sh` script. Note that this step requires you to have a valid Gloo Gateway license key. This will install Gloo Gateway and Portal onto your Kubernetes cluster. It will also download the `meshctl` command line interface.
@@ -11,16 +26,14 @@ cd install
 export GLOO_GATEWAY_LICENSE_KEY={YOUR_GLOO_GATEWAY_LICENSE_KEY}
 ./install-gg.sh
 ```
-Note that the install script will spit out two hostname values that look like this:
+Note that the install script will print the hostname values of the Ingress gateway, like this:
 ```
 Ingress gateway hostame:
-Keycloak service hostame:
 ```
 
-These demo instructions assume that you have mapped the IP addresses of these hosts to `developer.example.com`, `api.example.com`, and `keycloak.example.com` in /etc/hosts, e.g.
+These demo instructions assume that you have mapped the IP addresses of this host to `developer.example.com`, `api.example.com`, and `keycloak.example.com` in /etc/hosts, e.g.
 ```
-1.1.1.1 developer.example.com api.example.com 
-1.1.1.2 keycloak.example.com
+1.1.1.1 developer.example.com api.example.com keycloak.example.com
 ```
 
 The installation script also automatically downloads and installs the `meshctl` CLI. To have global access from the command line to this CLI, you should add the directory `$HOME/.gloo-mesh/bin` to your PATH system variable:
@@ -29,22 +42,14 @@ export PATH=$HOME/.gloo-mesh/bin:$PATH
 echo $PATH
 ```
 
-There is a bug in secret generation in RC1 where the `ext-auth-service-api-key-secret-key` secret is added to the wrong namespace. If you are running RC2 or later, you do not have to do this! Let's copy the secret to the correct namespace:
-
-```
-kubectl get secret ext-auth-service-api-key-secret-key --namespace=gloo-mesh -o yaml | sed 's/namespace: .*/namespace: gloo-mesh-addons/' | kubectl apply -f -
-```
-
-The install script also deploys a Keycloak instance to support OIDC login for the Dev Portal UI and API. We need to set up a client and some users, so run the `keycloak.sh` script to do that. NOTE: you must set the environment variable `KC_ADMIN_PASS` to the value of your Keycloak password (defaults to 'admin').
-```
-export KC_ADMIN_PASS=<your password>
+The install script also deploys a Keycloak instance to support OIDC login for the Dev Portal UI and API. We need to set up a client and some users, so run the `keycloak.sh` script to do that.
+```bash
 ./keycloak.sh
 ```
 
-Next, run the `init.sh` script to pre-provision your environment with some authentication, rate-limit policies, etc. (see the `init.sh` file for details). This file needs to be executed from the repo's root directory.
+Next, run the `init.sh` script to pre-provision your environment with some authentication, rate-limit policies, routetables, etc. (see the `init.sh` file for details).
 ```bash
-cd ..
-./install/init.sh
+./init.sh
 ```
 
 Access Gloo Mesh dashboard using the `meshctl` CLI (make sure you've added the `meshctl` to your PATH system variable):
@@ -59,29 +64,35 @@ kubectl port-forward -n gloo-mesh svc/gloo-mesh-ui 8090:8090
 open http://localhost:8090
 ```
 
+### DevPortal UI
+To access the DevPortalUI (the frontend UI of our Developer Portal), we need to make the service that hosts our developer portal accessible from our local environment. We do this by port-forwarding into the service:
+```bash
+kubectl -n gloo-mesh-addons port-forward services/portal-frontend 4000
+```
+
+**Note**
+the reason for port-forwarding to localhost instead of exposing the UI via the gateway is OAuth/OIDC login flow. Because th DevPortalUI uses "Authorization Code Flow with PKCE", it either needs to run from localhost, or from a secured context, i.e. a HTTPS/TLS protected URL with non-self-signed certificates. Since this would require us to manage certificates, for the purpose of the demo we've decided to run the UI from localhost.
+
+
+### Backstage
+The demo provides a Backstage environment with the Gloo Platform Portal Backstage plugin installed. To make the Backstage environment accessible, we port-forward into the backstage service"
+```bash
+kubectl -n backstage port-forward services/backstage 7007:80
+```
+
+**Note**
+As with the DevPortalUI, the Backstage environment also uses "Authorization Code Flow with PKCE", so it also needs to run from localhost, or from a secured context, i.e. a HTTPS/TLS protected URL with non-self-signed certificates. Since this would require us to manage certificates, for the purpose of the demo we've decided to also run the Backstage UI from localhost.
+
+
 ---
 
-**Note**:
-
+**Note**
 If you're running this demo on a local Kubernetes cluster like _minikube_, the script might not provide a hostname for the Keycloak service and Ingress gateway. In that case you can, for example, create a tunnel to your cluster with `minikube tunnel` and map your local loopback address (i.e. 127.0.0.1) to the hosts mentioned earlier in /etc/hosts, e.g.
 
 ```
 127.0.0.1 developer.example.com api.example.com keycloak.example.com
 
 ```
-The second thing that you would need to do in such an environment is change the Keycloak URL in the installed authentication policy to point to the Kubernetes service DNS for the Keycloak service, and add this DNS name to your /etc/hosts file:
-
-Patch the authentication policy using the following command:
-```bash
-kubectl -n gloo-mesh patch ExtAuthPolicy oidc-auth --type "json" -p '[{"op":"replace","path":"/spec/config/glooAuth/configs/0/oauth2/oidcAuthorizationCode/issuerUrl","value":"http://keycloak.keycloak.svc.cluster.local:8080/realms/master/"}]'
-```
-
-Add the following line to your /etc/hosts file:
-```
-127.0.0.1 keycloack.keycloak.svc.cluster.local
-```
-
-This allows both the Gloo authentication server and your browser to communicate with the Keycloak identity provider.
 
 ---
 
@@ -306,26 +317,33 @@ This schema is stitched from all the `APIDoc` resources that are exposed via a g
 We can now cURL the REST API definition from the developer portal:
 
 ```bash
-curl -v developer.example.com/portal-server/v1/apis/tracks-rt-gloo-mesh-gateways-gg-demo-single/schema
+curl -v developer.example.com/v1/apis/tracks-rt-gloo-mesh-gateways-gg-demo-single/schema
 ```
 
 A list of all APIs exposed via this developer portal can be fetched with the following cURL command:
 
 ```bash
-curl -v developer.example.com/portal-server/v1/apis
+curl -v developer.example.com/v1/apis
 ```
 
-The example Developer Portal UI is deployed as a Node-based service in our cluster. To access the developer portal UI, open http://developer.example.com in your browser.
+The example Developer Portal UI is deployed as a Node-based service in our cluster. To access the developer portal UI, open http://localhost:4000 in your browser:
 
 ```bash
-open http://developer.example.com
+open http://localhost:4000
 ```
 
 In the Developer Portal UI we can view all the APIs that have been exposed via our Developer Portal and too which we have access (authentication and authorization flows to be added later).
 
 Click on the _Tracks_ API to get the OpenAPI doc from which you can inspect all the RESTful resources and the operations that the API exposes.
 
-NOTE: A login flow has not been implemented yet in this Developer Portal UI Starter application. Once authentication has been implemented,  users have an identity and then can look the usage plans for the APIs and generate API keys.
+### Backstage
+Apart from the Developer Portal UI, the demo also provides a [Backstage](https://backstage.io/) internal developer platform (IDP) environment with the [Gloo Platform Portal Backstage plugin](https://github.com/solo-io/dev-portal-backstage-public#readme) pre-installed. To access the Backstage IDP, open http://localhost:7007 in your browser:
+
+```bash
+open http://localhost:7007
+```
+
+In the left navigation menu of the Backstage UI, click on `Gloo Portal` to access the Gloo Platform Portal functionality. Like in the DevPortal UI, the Backstage environment allows you to view and explore APIs, try them out using the integrated Swagger UI, view Usage Plans and create and manage API-Keys.
 
 
 ### Pet Store API
@@ -490,6 +508,4 @@ curl -v -H "api-key:{api-key}" api.example.com/trackapi/tracks
 ```
 
 ---
-
-
 
