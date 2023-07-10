@@ -70,8 +70,8 @@ To access the DevPortalUI (the frontend UI of our Developer Portal), we need to 
 kubectl -n gloo-mesh-addons port-forward services/portal-frontend 4000
 ```
 
-**Note**
-the reason for port-forwarding to localhost instead of exposing the UI via the gateway is OAuth/OIDC login flow. Because th DevPortalUI uses "Authorization Code Flow with PKCE", it either needs to run from localhost, or from a secured context, i.e. a HTTPS/TLS protected URL with non-self-signed certificates. Since this would require us to manage certificates, for the purpose of the demo we've decided to run the UI from localhost.
+> **Note**
+> the reason for port-forwarding to localhost instead of exposing the UI via the gateway is OAuth/OIDC login flow. Because th DevPortalUI uses "Authorization Code Flow with PKCE", it either needs to run from localhost, or from a secured context, i.e. a HTTPS/TLS protected URL with non-self-signed certificates. Since this would require us to manage certificates, for the purpose of the demo we've decided to run the UI from localhost.
 
 
 ### Backstage
@@ -80,19 +80,17 @@ The demo provides a Backstage environment with the Gloo Platform Portal Backstag
 kubectl -n backstage port-forward services/backstage 7007:80
 ```
 
-**Note**
-As with the DevPortalUI, the Backstage environment also uses "Authorization Code Flow with PKCE", so it also needs to run from localhost, or from a secured context, i.e. a HTTPS/TLS protected URL with non-self-signed certificates. Since this would require us to manage certificates, for the purpose of the demo we've decided to also run the Backstage UI from localhost.
+> **Note**
+> As with the DevPortalUI, the Backstage environment also uses "Authorization Code Flow with PKCE", so it also needs to run from localhost, or from a secured context, i.e. a HTTPS/TLS protected URL with non-self-signed certificates. Since this would require us to manage certificates, for the purpose of the demo we've decided to also run the Backstage UI from localhost.
 
 
 ---
 
-**Note**
-If you're running this demo on a local Kubernetes cluster like _minikube_, the script might not provide a hostname for the Keycloak service and Ingress gateway. In that case you can, for example, create a tunnel to your cluster with `minikube tunnel` and map your local loopback address (i.e. 127.0.0.1) to the hosts mentioned earlier in /etc/hosts, e.g.
-
-```
-127.0.0.1 developer.example.com api.example.com keycloak.example.com
-
-```
+> **Note**
+> If you're running this demo on a local Kubernetes cluster like _minikube_, the script might not provide a hostname for the Keycloak service and Ingress gateway. In that case you can, for example, create a tunnel to your cluster with `minikube tunnel` and map your local loopback address (i.e. 127.0.0.1) to the hosts mentioned earlier in /etc/hosts, e.g.
+> ```
+> 127.0.0.1 developer.example.com api.example.com keycloak.example.com
+> ```
 
 ---
 
