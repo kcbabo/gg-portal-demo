@@ -49,6 +49,13 @@ export KEYCLOAK_SA_CLIENT_ID=portal-sa
 read -r regid secret <<<$(curl -k -X POST -d "{ \"clientId\": \"${KEYCLOAK_SA_CLIENT_ID}\" }" -H "Content-Type:application/json" -H "Authorization: bearer ${KEYCLOAK_TOKEN}" ${KEYCLOAK_URL}/realms/master/clients-registrations/default|  jq -r '[.id, .secret] | @tsv')
 export KEYCLOAK_SA_SECRET=${secret}
 export REG_ID=${regid}
+
+printf "\nCreated service account:\n"
+printf "Client-ID: $KEYCLOAK_SA_CLIENT_ID\n"
+printf "Client-Secret: $KEYCLOAK_SA_SECRET\n\n"
+export CLIENT_ID=$KEYCLOAK_SA_CLIENT_ID
+export CLIENT_SECRET=$KEYCLOAK_SA_SECRET
+
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"publicClient": false, "standardFlowEnabled": false, "serviceAccountsEnabled": true, "directAccessGrantsEnabled": false, "authorizationServicesEnabled": false}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
 # Add the group attribute in the JWT token returned by Keycloak
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X POST -H "Content-Type: application/json" -d '{"name": "group", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-attribute-mapper", "config": {"claim.name": "group", "jsonType.label": "String", "user.attribute": "group", "id.token.claim": "true", "access.token.claim": "true"}}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}/protocol-mappers/models
@@ -57,7 +64,7 @@ curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X POST -H "Content-Type: a
 # printf "Wait till the user is created."
 # sleep 2
 
-export userResponse=$(curl -k -X GET -H "Accept:application/json" -H "Authorization: bearer ${KEYCLOAK_TOKEN}" ${KEYCLOAK_URL}/admin/realms/master/users?username=service-account-${KEYCLOAK_SA_CLIENT_ID}&exact=true)
+export userResponse=$(curl -k -X GET -H "Accept:application/json" -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" ${KEYCLOAK_URL}/admin/realms/master/users?username=service-account-${KEYCLOAK_SA_CLIENT_ID}&exact=true)
 export userid=$(echo $userResponse | jq -r '.[0].id')
 # Set the extra group attribute on the user.
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d "{\"email\": \"${KEYCLOAK_SA_CLIENT_ID}@example.com\", \"attributes\": {\"group\": \"users\"}}" $KEYCLOAK_URL/admin/realms/master/users/$userid
