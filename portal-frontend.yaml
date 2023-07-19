@@ -38,31 +38,21 @@ spec:
       serviceAccountName: portal-frontend
       containers:
         #- image: kcbabo/portal-frontend-nick:latest
-        - image: duncandoyle/portal-frontend:latest
+        - image: duncandoyle/portal-frontend:1.0.1
           args: ["--host", "0.0.0.0"]
           #imagePullPolicy: Always
           imagePullPolicy: IfNotPresent
           name: portal-frontend
           ports:
             - containerPort: 4000
-          # env:
-          # - name: "PORTAL_SERVER_URL"
-          #   value: "http://developer.example.com/v1/"
-          # - name: "TOKEN_ENDPOINT"
-          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/token"
-          # - name: "AUTH_ENDPOINT"
-          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/auth"
-          # - name: "LOGOUT_ENDPOINT"
-          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/logout"
-          # - name: "CLIENT_ID"
-          #   value: "portal-client"
-          # - name: "VITE_PORTAL_SERVER_URL"
-          #   value: "http://developer.example.com/v1/"
-          # - name: "VITE_TOKEN_ENDPOINT"
-          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/token"
-          # - name: "VITE_AUTH_ENDPOINT"
-          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/auth"
-          # - name: "VITE_LOGOUT_ENDPOINT"
-          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/logout"
-          # - name: "VITE_CLIENT_ID"
-          #   value: "portal-client"
+          env:
+          - name: "VITE_PORTAL_SERVER_URL"
+            value: "http://developer.example.com/v1/"
+          - name: "VITE_CLIENT_ID"
+            value: "portal-client"
+          - name: "VITE_TOKEN_ENDPOINT"
+            value: "http://keycloak.example.com/realms/master/protocol/openid-connect/token"
+          - name: "VITE_AUTH_ENDPOINT"
+            value: "http://keycloak.example.com/realms/master/protocol/openid-connect/auth"
+          - name: "VITE_LOGOUT_ENDPOINT"
+            value: "http://keycloak.example.com/realms/master/protocol/openid-connect/logout"
