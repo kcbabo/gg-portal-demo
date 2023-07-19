@@ -121,5 +121,5 @@ popd
 
 if [ "$BACKSTAGE_ENABLED" = true ] ; then
   printf "\nDeploying Backstage.\n"
-  helm upgrade --install gp-portal-demo-backstage ddoyle-gloo-demo/gp-portal-demo-backstage --namespace backstage --create-namespace --version 0.1.0
+  helm upgrade --install gp-portal-demo-backstage ddoyle-gloo-demo/gp-portal-demo-backstage --namespace backstage --create-namespace --version 0.1.1
 fi
