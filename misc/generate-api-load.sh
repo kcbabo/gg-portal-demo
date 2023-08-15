@@ -31,7 +31,14 @@ printf "Calling the Tracks API a number of times. This can take a while."
 for i in {1..1000}
 do
    curl -s -o /dev/null -w "%{http_code}\n" -H "Accept: application/json" -H "api-key: $apiKey" http://api.example.com/trackapi/tracks
+   #curl -I -H "Accept: application/json" -H "api-key: $apiKey" http://api.example.com/trackapi/tracks
 
    # TODO: Parse the response and loop over all the individual tracks.
 
 done
+
+
+# TODO 
+
+printf "\nDelete API Key: $apiKeyId\n"
+curl -X DELETE -H "Authorization: Bearer ${ACCESS_TOKEN}" -H "Accept: application/json" http://developer.example.com/v1/api-keys/${apiKeyId}
