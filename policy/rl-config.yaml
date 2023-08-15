@@ -34,6 +34,13 @@ spec:
         rateLimit:
           requestsPerUnit: 5
           unit: MINUTE
+      - simpleDescriptors:
+          - key: userId
+          - key: usagePlan
+            value: platinum
+        rateLimit:
+          requestsPerUnit: 10000
+          unit: MINUTE
 ---
 apiVersion: trafficcontrol.policy.gloo.solo.io/v2
 kind: RateLimitClientConfig
