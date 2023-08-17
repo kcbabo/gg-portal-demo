@@ -38,7 +38,7 @@ spec:
       serviceAccountName: portal-frontend
       containers:
         #- image: kcbabo/portal-frontend-nick:latest
-        - image: duncandoyle/portal-frontend:1.0.1
+        - image: duncandoyle/portal-frontend:1.0.3
           args: ["--host", "0.0.0.0"]
           #imagePullPolicy: Always
           imagePullPolicy: IfNotPresent
