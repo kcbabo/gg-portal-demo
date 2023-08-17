@@ -19,7 +19,7 @@ export KEYCLOAK_TOKEN=$(curl -k -d "client_id=admin-cli" -d "username=admin" -d 
 read -r regid secret <<<$(curl -k -X POST -d "{ \"clientId\": \"${KEYCLOAK_CLIENT_ID}\" }" -H "Content-Type:application/json" -H "Authorization: bearer ${KEYCLOAK_TOKEN}" ${KEYCLOAK_URL}/realms/master/clients-registrations/default|  jq -r '[.id, .secret] | @tsv')
 export KEYCLOAK_SECRET=${secret}
 export REG_ID=${regid}
-curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"publicClient": true, "serviceAccountsEnabled": true, "directAccessGrantsEnabled": true, "authorizationServicesEnabled": true, "redirectUris": ["http://developer.example.com/*", "https://developer.example.com/*", "http://localhost:7007/gloo-platform-portal/*", "http://localhost:4000/*"], "webOrigins": ["*"]}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
+curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"publicClient": true, "serviceAccountsEnabled": true, "directAccessGrantsEnabled": true, "authorizationServicesEnabled": true, "redirectUris": ["http://developer.example.com/*", "https://developer.example.com/*", "http://localhost:7007/gloo-platform-portal/*", "http://localhost:4000/*", "http://localhost:3000/*"], "webOrigins": ["*"]}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
 
 [[ -z "$KEYCLOAK_SECRET" || $KEYCLOAK_SECRET == null ]] && { echo "Faled to create client in Keycloak"; exit 1;}
 
@@ -121,7 +121,7 @@ export PARTNER_APP_URL=http://$PARTNER_PORTAL_HOST
 read -r regid secret <<<$(curl -k -X POST -d "{ \"clientId\": \"${PARTNER_KEYCLOAK_CLIENT_ID}\" }" -H "Content-Type:application/json" -H "Authorization: bearer ${KEYCLOAK_TOKEN}" ${KEYCLOAK_URL}/realms/master/clients-registrations/default|  jq -r '[.id, .secret] | @tsv')
 export PARTNER_KEYCLOAK_SECRET=${secret}
 export REG_ID=${regid}
-curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"publicClient": true, "serviceAccountsEnabled": true, "directAccessGrantsEnabled": true, "authorizationServicesEnabled": true, "redirectUris": ["http://developer.example.com/*", "https://developer.example.com/*", "http://localhost:7007/gloo-platform-portal/*", "http://localhost:4000/*"], "webOrigins": ["*"]}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
+curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"publicClient": true, "serviceAccountsEnabled": true, "directAccessGrantsEnabled": true, "authorizationServicesEnabled": true, "redirectUris": ["http://developer.example.com/*", "https://developer.example.com/*", "http://localhost:7007/gloo-platform-portal/*", "http://localhost:4000/*", "http://localhost:3000/*"], "webOrigins": ["*"]}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
 
 [[ -z "$PARTNER_KEYCLOAK_SECRET" || $PARTNER_KEYCLOAK_SECRET == null ]] && { echo "Faled to create client in Keycloak"; exit 1;}
 
