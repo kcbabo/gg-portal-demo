@@ -23,5 +23,6 @@ spec:
     - PATCH
     - DELETE
     allowOrigins:
+    - exact: http://localhost:3000
     - exact: http://localhost:4000
     - exact: http://localhost:7007
