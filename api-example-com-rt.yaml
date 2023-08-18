@@ -12,11 +12,18 @@ spec:
   http:
   - matchers:
     - uri:
-        prefix: /trackapi
+        prefix: /trackapi/v1.0
     delegate:
       routeTables:
         - labels:
-            api: tracks
+            api: tracks-1.0
+  - matchers:
+    - uri:
+        prefix: /trackapi/v1.1
+    delegate:
+      routeTables:
+        - labels:
+            api: tracks-1.1
   # - matchers:
   #   - uri:
   #       prefix: /petstore

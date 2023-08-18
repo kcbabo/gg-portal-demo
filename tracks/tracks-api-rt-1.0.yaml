@@ -5,13 +5,13 @@ metadata:
   namespace: gloo-mesh-gateways
   labels:
      portal: dev-portal
-     api: tracks
+     api: tracks-1.0
      # uncomment if you want to hide this API from the portal
-    #  portal-visibility: private
+     portal-visibility: private
 spec:
   portalMetadata:
     apiProductId: Catstronauts
-    apiVersion: 1.0.0
+    apiVersion: "1.0"
     title: Catstronauts REST API
     description: REST API for Catstronauts to retrieve data for tracks, authors and modules.
     termsOfService: |
@@ -62,7 +62,18 @@ spec:
       pathRewrite: /
       destinations:
       - ref:
-          name: tracks-rest-api
+          name: tracks-rest-api-1-0
           namespace: tracks
         port:
           number: 5000
+        subset:
+          version: 1.0.0
+        weight: 80
+      - ref:
+          name: tracks-rest-api-1-0
+          namespace: tracks
+        port:
+          number: 5000
+        subset:
+          version: 1.0.1
+        weight: 20
