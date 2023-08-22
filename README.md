@@ -28,12 +28,12 @@ export GLOO_GATEWAY_LICENSE_KEY={YOUR_GLOO_GATEWAY_LICENSE_KEY}
 ```
 Note that the install script will print the hostname values of the Ingress gateway, like this:
 ```
-Ingress gateway hostame:
+Ingress gateway hostname:
 ```
 
-These demo instructions assume that you have mapped the IP addresses of this host to `developer.example.com`, `api.example.com`, `keycloak.example.com` and `grafana.example.com` in /etc/hosts, e.g.
+These demo instructions assume that you have mapped the IP addresses of this host to `developer.example.com`, `api.example.com`, `keycloak.example.com`, `grafana.example.com` and `argocd.example.com` in /etc/hosts, e.g.
 ```
-1.1.1.1 developer.example.com api.example.com keycloak.example.com grafana.example.com
+1.1.1.1 developer.example.com api.example.com keycloak.example.com grafana.example.com argocd.example.com
 ```
 
 The installation script also automatically downloads and installs the `meshctl` CLI. To have global access from the command line to this CLI, you should add the directory `$HOME/.gloo-mesh/bin` to your PATH system variable:
@@ -75,7 +75,29 @@ kubectl -n gloo-mesh-addons port-forward services/portal-frontend 4000
 
 
 ### Backstage
-The demo provides a Backstage environment with the Gloo Platform Portal Backstage plugin installed. To make the Backstage environment accessible, we port-forward into the backstage service"
+The demo provides a Backstage environment with the Gloo Platform Portal Backstage plugins installed.
+
+The Gloo Platform Portal Backstage back-end plugin requires access to `keycloak.example.com` and `developer.example.com` hosts to acquire an access-token for the portal server and to access the portal server. In this demo we've exposed these hostnames via Gloo Gateway using routetables, and have mapped these hostnames to the Gloo Gateway Ingress ip address. Since the Backstage container in our Kubernetes environment cannot resolve these hostnames, we need to add some mappig rules to the Kubernetes CoreDNS configuration to map these hostnames to the location of the Ingress Gateway. 
+
+Navigate to the `install` directory of the demo, and execute the following script:
+
+```bash
+./k8s-coredns-config.sh
+```
+
+This will add the following 2 mapping rules to the CoreDNS configuration file:
+
+```
+rewrite name keycloak.example.com istio-ingressgateway.gloo-mesh-gateways.svc.cluster.local
+rewrite name developer.example.com istio-ingressgateway.gloo-mesh-gateways.svc.cluster.local
+```
+
+Restart the Backstage deployment with the following command:
+```bash
+kubectl -n backstage rollout restart deployment backstage
+```
+
+To make the Backstage environment accessible, we port-forward into the backstage service"
 ```bash
 kubectl -n backstage port-forward services/backstage 7007:80
 ```
@@ -540,6 +562,98 @@ The API Analytics feature is based on the Gloo Gateway/Envoy access logs, and an
 kubectl -n gloo-mesh-gateways logs -f deployments/istio-ingressgateway-1-17-2
 ```
 
-#### GitOps
+#### GitOps / ArgoCD
 
-**TODO**
+
+##### Installation
+These instructions assume that you have the `argocd` CLI installed on your machine. For installation instructions, please consult: https://argo-cd.readthedocs.io/en/stable/cli_installation/
+
+To install Argo CD on our Kubernetes cluster, navigate to  the `install/argocd` directory and run the command:
+
+```bash
+./install-argocd.sh
+```
+
+This will install a default deployment of ArgoCD, without https and with the username/pasword: admin/admin. Note that this is an insecure setup of Argo CD and only intended for demo purposes. This deployment should not be used in a production environment.
+
+The installation will add a route to Gloo Gateway for the `argocd.example.com` host. During the initial deployment of this demo you should have already added a line to your `/etc/hosts` file that maps the `argocd.example.com` hostname to the ip-address of the ingress gateway.
+
+Navigate to `http://argocd.example.com` and login to the Argo CD console with username `admin` and password `admin`. You should see an empty Argo CD environment.
+
+We can now login to Argo CD with the CLI. From a terminal, login using the following command:
+
+```bash
+argocd login argocd.example.com:80
+```
+
+You will get a message that the server is not configured with TLS. Enter `y` to proceed. Login with the same username and password combination, i.e. `admin:admin`.
+
+##### Deploying the Petstore APIProduct
+> **Note** 
+> If you already have the Petstore APIProduct and its services (Pets, Users, Store) deployed to your environment, please remove them.
+
+Once logged in to Argo CD with the CLI, we can deploy our Petstore service using a pre-created Helm chart that can be found [here](https://github.com/DuncanDoyle/gp-portal-demo-petstore-helm-demo). To use this repository, fork it your own GitHub account so you can make updates to the the repository and observe how Argo CD and Helm reconciliate state and deploy your changes to the Kubernetes cluster. After you've forked the repository, run the following command to add this deployment to the Argo CD environment, replacing {GITHUB_USER} with the GitHub account in which you've forked the repository:
+
+```bash
+argocd app create petstore-apiproduct --repo https://github.com/{GITHUB_USER}/gp-portal-demo-petstore-helm-demo.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web
+```
+
+Navigate back to the UI and observe that the `petstore-apiproduct` has been added to your Argo CD environment. Notice that the `status` is `out of sync`. Click the `Sync` button in the UI to sync the state of the project with the Kubernetes cluster. In the syncrhonization panel that slides in, click `Synchronize`.
+
+Open a terminal and observe that the Petstore APIProduct has been deployed, including a deployment, service, routetable, etc.:
+
+```bash
+kubectl -n default get all
+```
+
+```bash
+kubectl -n gloo-mesh-gateways get rt petstore-rt -o yaml
+```
+
+Observe that Gloo Platform Portal has scraped the services (Pets, Store and User) for their OpenAPI specifications and that a stitched APIDoc has been created for the Petstore API product:
+
+```bash
+kubectl get apidoc -A
+```
+
+Open the Developer Portal UI (http://localhost:4000), and observe that the PetStore API product has been added to the API catalog.
+
+You can now manage the Petstore APIProduct using a GitOps approach. Simply make a change to the Petstore APIProduct Helm chart in your Git repository, for example add or remove one the services (Pets, Users, Store) from the API Product, push the change to Git and synchronize the state of the application using the `Refresh` and `Sync` buttons in the Argo CD UI.
+
+
+##### Managing Gloo Platform Portal configuration
+
+Apart from deploying and manager API Products using Argo CD, the Kubernetes native approach of Gloo Platform Portal means that we can manage the entire platform's configuration using GitOps. To demonstrate this, we will show how the Portal's rate-limiting policies and Usage Plans can be maneged with Argo CD.
+
+We have created a Helm chart that configures the Portal's rate-limiting policies. This chart be found [here](https://github.com/DuncanDoyle/gp-portal-platform-team-helm-demo). As with Petstore APIProduct GitOps example, you will need to fork this repository to your own GitHub account so you can make changes to it.
+
+After you've forked the repository, run the following command to add this deployment to the Argo CD environment, replacing {GITHUB_USER} with the GitHub account in which you've forked the repository:
+
+```bash
+argocd app create gp-portal-platform-config --repo https://github.com/{GITHUB_USER}/gp-portal-platform-team-helm-demo.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web
+```
+
+Navigate back to the Argo CD UI and observe that the `gp-portal-platform-config` project has been added to your Argo CD environment. Notice that the `status` is `out of sync`. Click the `Sync` button in the UI to sync the state of the project with the Kubernetes cluster. In the syncrhonization panel that slides in, click `Synchronize`.
+
+You can now manage the rate-limit policies and Usage Plans using GitOps. In the forked `gp-portal-platform-team-helm-demo` repository, open the file `templates/policy/rate-limit-server-config.yaml`. Add a `simpleDescriptor` entry that defines the "Diamond" usage plan:
+
+```
+- simpleDescriptors:
+    - key: userId
+    - key: usagePlan
+      value: platinum
+    rateLimit:
+      requestsPerUnit: 10000
+      unit: MINUTE
+```
+
+Save the file. Next, open the file `templates/dev-portal.yaml` and  add a description for the new Usage Plan:
+
+```
+- name: platinum
+  description: "The shining usage plan!"
+```
+
+Save the file. Commit both the files to your Git repository and push the changes to the origin repository in your GitHub account.
+
+In the Argo CD UI, click on the `Refresh` button of the `gloo-portal-platform-config` project and observe that the status changes to `OutOfSync`. Click on the `Sync` button, and in the panel that slides in, click on `Synchronize`. Your comnfiguration changes are now synchronized with the Kubernetes cluster and your newly configured Usage Plan is available. Go the DevPortal UI and login. When logged in, click on your username and click on `API-Keys`. You should now see your new "Diamond" usage plan with 10000 requests per minute.
