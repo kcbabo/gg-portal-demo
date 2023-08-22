@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export GLOO_VERSION=2.4.0-rc3
+export GLOO_VERSION=2.4.0-rc4
 export ISTIO_REVISION=1-18-2
 
 export CLUSTER_NAME=gg-demo-single

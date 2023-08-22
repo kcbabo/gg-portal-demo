@@ -2,6 +2,8 @@ common:
   cluster: cluster-1
 # demo:
 #   manageAddonNamespace: true
+clickhouse:
+  enabled: true
 glooAgent:
   enabled: true
   relay:
@@ -55,7 +57,8 @@ istioInstallations:
                   "api_id": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:api_id)%",
                   "api_product_id": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:api_product_id)%",
                   "api_product_name": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:api_product_name)%",
-                  "usage_plan": "%DYNAMIC_METADATA(envoy.filters.http.ext_authz:usagePlan)%"
+                  "usage_plan": "%DYNAMIC_METADATA(envoy.filters.http.ext_authz:usagePlan)%",
+                  "custom_metadata": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:custom_metadata)%"
                 }
           revision: auto
     enabled: true
@@ -66,7 +69,6 @@ istioInstallations:
             istioOperatorSpec: {}
         name: istio-ingressgateway
 telemetryCollector:
-  enabled: true
   config:
     exporters:
       otlp:
@@ -75,9 +77,11 @@ telemetryCollector:
     logsCollection:
       enabled: true
       storeCheckpoints: true
-telemetryCollectorCustomization:
-  logsCollection:
-    enabled: true
+  enabled: true
+telemetryCollectorCustomization: 
+  pipelines:
+    logs/istio_access_logs: 
+      enabled: true
 prometheus:
   enabled: true
 redis:
@@ -85,41 +89,44 @@ redis:
     enabled: true
 telemetryGateway:
   enabled: true
-telemetryGatewayCustomization:
-  logsCollection:
-    enabled: true
-    store:
-      clickhouse:
-        password: password
   service:
     type: ClusterIP
-rateLimiter:
-  enabled: true
-  rateLimiter:
-    watchNamespace: gloo-mesh-addons
+  extraEnvs:
+  - name: CLICKHOUSE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        key: password
+        name: clickhouse-auth
+telemetryGatewayCustomization:
+  pipelines:
+    logs/clickhouse:
+      enabled: true
+  extraExporters:
+    clickhouse:
+      password: "${env:CLICKHOUSE_PASSWORD}"
 extAuthService:
   enabled: true
   extAuth:
     apiKeyStorage:
+      # Use the local gloo-mesh-addons Redis for backing storage
       name: redis
       enabled: true
       config:
+        host: "redis.gloo-mesh-addons:6379"
+        # Set to 0 to match the default database for the 'glooPortalServer.apiKeyStorage' configuration
         db: 0
-        host: redis.gloo-mesh-addons:6379
-      secretKey: xyz987
+      # Replace with a random string to use to generate hash values for other keys
+      secretKey: "ThisIsSecret"
 glooPortalServer:
   enabled: true
   apiKeyStorage:
-    configPath: /etc/redis-client-config/config.yaml
-    secretKey: xyz987
+    # Use the local gloo-mesh-addons Redis for backing storage
     redis:
       enabled: true
       address: redis.gloo-mesh-addons:6379
-      auth:
-        enabled: false
-clickhouse:
+    # Path for API key storage config file in the gloo-mesh-addons backing Redis
+    configPath: /etc/redis-client-config/config.yaml
+    # Replace with a random string to use to generate hash values for other keys
+    secretKey: "ThisIsSecret"
+rateLimiter:
   enabled: true
-  service:
-    type: NodePort
-    nodePorts:
-      http: 31123

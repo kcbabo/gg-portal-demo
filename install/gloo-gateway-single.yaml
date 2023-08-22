@@ -30,27 +30,29 @@ telemetryGateway:
   enabled: true
   service:
     type: ClusterIP
-rateLimiter:
-  enabled: true
-  rateLimiter:
-    watchNamespace: gloo-mesh-addons
 extAuthService:
   enabled: true
   extAuth:
     apiKeyStorage:
+      # Use the local gloo-mesh-addons Redis for backing storage
       name: redis
       enabled: true
       config:
+        host: "redis.gloo-mesh-addons:6379"
+        # Set to 0 to match the default database for the 'glooPortalServer.apiKeyStorage' configuration
         db: 0
-        host: redis.gloo-mesh-addons:6379
-      secretKey: xyz987
+      # Replace with a random string to use to generate hash values for other keys
+      secretKey: "ThisIsSecret"
 glooPortalServer:
   enabled: true
   apiKeyStorage:
-    configPath: /etc/redis-client-config/config.yaml
-    secretKey: xyz987
+    # Use the local gloo-mesh-addons Redis for backing storage
     redis:
       enabled: true
       address: redis.gloo-mesh-addons:6379
-      auth:
-        enabled: false
+    # Path for API key storage config file in the gloo-mesh-addons backing Redis
+    configPath: /etc/redis-client-config/config.yaml
+    # Replace with a random string to use to generate hash values for other keys
+    secretKey: "ThisIsSecret"
+rateLimiter:
+  enabled: true
