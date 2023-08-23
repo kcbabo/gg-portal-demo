@@ -597,7 +597,7 @@ You will get a message that the server is not configured with TLS. Enter `y` to 
 Once logged in to Argo CD with the CLI, we can deploy our Petstore service using a pre-created Helm chart that can be found [here](https://github.com/DuncanDoyle/gp-portal-demo-petstore-helm-demo). To use this repository, fork it your own GitHub account so you can make updates to the the repository and observe how Argo CD and Helm reconciliate state and deploy your changes to the Kubernetes cluster. After you've forked the repository, run the following command to add this deployment to the Argo CD environment, replacing {GITHUB_USER} with the GitHub account in which you've forked the repository:
 
 ```bash
-argocd app create petstore-apiproduct --repo https://github.com/{GITHUB_USER}/gp-portal-demo-petstore-helm-demo.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web
+argocd app create petstore-apiproduct --repo https://github.com/{GITHUB_USER}/gp-portal-demo-petstore-helm-demo.git --revision main --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web
 ```
 
 Navigate back to the UI and observe that the `petstore-apiproduct` has been added to your Argo CD environment. Notice that the `status` is `out of sync`. Click the `Sync` button in the UI to sync the state of the project with the Kubernetes cluster. In the syncrhonization panel that slides in, click `Synchronize`.
@@ -632,7 +632,7 @@ We have created a Helm chart that configures the Portal's rate-limiting policies
 After you've forked the repository, run the following command to add this deployment to the Argo CD environment, replacing {GITHUB_USER} with the GitHub account in which you've forked the repository:
 
 ```bash
-argocd app create gp-portal-platform-config --repo https://github.com/{GITHUB_USER}/gp-portal-platform-team-helm-demo.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web
+argocd app create gp-portal-platform-config --repo https://github.com/{GITHUB_USER}/gp-portal-platform-team-helm-demo.git --revision main --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web
 ```
 
 Navigate back to the Argo CD UI and observe that the `gp-portal-platform-config` project has been added to your Argo CD environment. Notice that the `status` is `out of sync`. Click the `Sync` button in the UI to sync the state of the project with the Kubernetes cluster. In the syncrhonization panel that slides in, click `Synchronize`.
