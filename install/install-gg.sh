@@ -85,6 +85,7 @@ spec:
         - host: developer.partner.example.com
         - host: keycloak.example.com
         - host: grafana.example.com
+        - host: argocd.example.com
   workloads:
   - selector:
       labels:
