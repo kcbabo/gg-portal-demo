@@ -25,4 +25,5 @@ spec:
   #      description: "A better usage plan"
   #    - name: gold
   #      description: "The best usage plan!"
-  
+  #    - name: platinum
+  #      description: "The ultimate usage plan!
