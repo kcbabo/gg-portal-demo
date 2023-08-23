@@ -177,14 +177,16 @@ kubectl create ns tracks
 Next, we can deploy the application:
 
 ```bash
-kubectl apply -f apis/tracks-api.yaml
+kubectl apply -f apis/tracks-api-1.0.yaml
 ```
 
 While the app starts up, let's take a look at the Deployment and Service in the YAML file:
 
 ```bash
-cat apis/tracks-api.yaml
+cat apis/tracks-api-1.0.yaml
 ```
+
+Notice that there are 2 Deployments defined in this file, one for version 1.0.0 of the service, and one for version 1.0.1, which are both exposed via the same Service version 1.0. This allows us to later in the demo demonstrate a blue-green or canary deployment of our service.
 
 The one thing that is unique about this YAML file is the `gloo.solo.io/scrape-openapi-source` annotation on the `Service` object, which tells the Gloo Platform from where to get the OpenAPI specification of the given service.
 If developers don't want to annotate their services, that's fine too. The APIDoc resource can simply be added separetely and you don't need to use discovery.
@@ -192,7 +194,7 @@ If developers don't want to annotate their services, that's fine too. The APIDoc
 We can inspect the _Tracks_ service's `swagger.json` specification as follows:
 
 ```bash
-kubectl -n tracks port-forward services/tracks-rest-api 5000:5000
+kubectl -n tracks port-forward services/tracks-rest-api-1-0 5000:5000
 ```
 ```bash
 open http://localhost:5000/swagger.json
@@ -205,7 +207,7 @@ Since we have annotated the _Tracks_ service with our `gloo.solo.io/scrape-opena
 kubectl -n tracks get apidoc
 ```
 ```bash
-kubectl -n tracks get apidoc tracks-rest-api-service -o yaml
+kubectl -n tracks get apidoc tracks-rest-api-1-0-service -o yaml
 ```
 
 The APIDoc defines both the API Definition and the destination that serves that API, based on the cluster, namespace, name selectors and a port.
@@ -214,7 +216,7 @@ Now that we have the API deployed, we can expose it to the outside world. This i
 The `tracks/tracks-api-rt.yaml` file contains the definition of the `RouteTable` that exposes the _Tracks_ API:
 
 ```bash
-cat tracks/tracks-api-rt.yaml
+cat tracks/tracks-api-rt-1.0.yaml
 ```
 
 The `portalMetadata` field in the `RouteTable` resource allows us to specify additional metadata about our API. The metadata is provided via the Gloo Portal REST API, and from there, can be exposed in the Developer Portal UI. This metadata can include fields like _licence_, _title_, _description_, _service owner_, _data classification_, etc.
@@ -234,7 +236,7 @@ Observe that the `applyToRoutes` field of this resource states that the routes t
 Let's apply the `RouteTable` resource:
 
 ```bash
-kubectl apply -f tracks/tracks-api-rt.yaml
+kubectl apply -f tracks/tracks-api-rt-1.0.yaml
 ```
 
 We can now see the API in the Gloo Platform UI at http://localhost:8090/apis
@@ -264,7 +266,7 @@ kubectl apply -f api-example-com-rt.yaml
 We should now be able to cURL that endpoint. Note that you might need to edit your `/etc/hosts` file to map the `api.example.com` domain to the ip-address of your Kubernetes cluster's ingress.
 
 ```bash
-curl -v api.example.com/trackapi/tracks
+curl -v api.example.com/trackapi/v1.0/tracks
 ```
 
 #### Security
@@ -277,12 +279,12 @@ kubectl apply -f policy/auth-policy.yaml
 When we run the cURL command again, a _401 Unauthorized_ is returned as expected.
 
 ```bash
-curl -v api.example.com/trackapi/tracks
+curl -v api.example.com/trackapi/v1.0/tracks
 ```
 ```bash
 *   Trying 127.0.0.1:80...
 * Connected to api.example.com (127.0.0.1) port 80 (#0)
-> GET /trackapi/tracks HTTP/1.1
+> GET /trackapi/v1.0/tracks HTTP/1.1
 > Host: api.example.com
 > User-Agent: curl/7.86.0
 > Accept: */*
@@ -329,7 +331,7 @@ kubectl -n gloo-mesh get PortalConfig developer-portal-gloo-mesh-gg-demo-single 
 Note that the APIDoc that is referenced by the PortalConfig is a stitched API:
 
 ```bash
-kubectl -n gloo-mesh get apidoc tracks-rt-stitched-openapi-gg-demo-single-gloo-mesh-gateways-gg-demo-single -o yaml
+kubectl -n gloo-mesh get apidoc tracks-rt-1.0-stitched-openapi-gg-demo-single-gloo-mesh-gateways-gg-demo-single -o yaml
 ```
 
 This schema is stitched from all the `APIDoc` resources that are exposed via a given `RouteTable`. In the case of the _Tracks_ API, this is only a single `APIDoc`.
@@ -337,7 +339,7 @@ This schema is stitched from all the `APIDoc` resources that are exposed via a g
 We can now cURL the REST API definition from the developer portal:
 
 ```bash
-curl -v developer.example.com/v1/apis/tracks-rt-gloo-mesh-gateways-gg-demo-single/schema
+curl -v developer.example.com/v1/apis/Catstronauts-1.0/schema
 ```
 
 A list of all APIs exposed via this developer portal can be fetched with the following cURL command:
@@ -446,7 +448,7 @@ kubectl apply -f policy/rl-policy.yaml
 We can verify that the policy has been applied to our _Tracks_ API Product by checking the status of the RouteTable:
 
 ```bash
-kubectl -n gloo-mesh-gateways get routetable tracks-rt -o yaml
+kubectl -n gloo-mesh-gateways get routetable tracks-rt-1.0 -o yaml
 ```
 
 In the `status` section of the output, we can see that both the security policy and trafficcontrol policy have been applied:
@@ -473,7 +475,7 @@ cat dev-portal.yaml
 When we apply this configuration to our _Tracks_ API Product/RouteTable, we can see that the product disappears from the Dev Portal UI:
 
 ```bash
-kubectl -n gloo-mesh-gateways patch routetable tracks-rt --type "json" -p '[{"op":"add","path":"/metadata/labels/portal-visibility","value":"private"}]'
+kubectl -n gloo-mesh-gateways patch routetable tracks-rt-1.0 --type "json" -p '[{"op":"add","path":"/metadata/labels/portal-visibility","value":"private"}]'
 ```
 
 Let's login to the Portal to see if we can get access to the _Tracks_ API again. In the Dev Portal UI at http://developer.example.com, click on the _Login_ button in the upper right corner. This should bring you to the Keycloak login screen. Login with username `user1` and password `password`. After succesfully logging in, you should be redirected to the Dev Portal UI. Click on the _APIs_ button in the top-right corner and observe that the _Tracks_ API is still not visible. This is because, when API Products are marked as private, we need define which users can access it. This is done via a `PortalGroup` configuration.
