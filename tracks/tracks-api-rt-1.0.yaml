@@ -68,7 +68,7 @@ spec:
           number: 5000
         subset:
           version: 1.0.0
-        weight: 80
+        weight: 100
       - ref:
           name: tracks-rest-api-1-0
           namespace: tracks
@@ -76,4 +76,4 @@ spec:
           number: 5000
         subset:
           version: 1.0.1
-        weight: 20
+        weight: 0
