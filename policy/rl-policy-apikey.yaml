@@ -1,7 +1,7 @@
 apiVersion: trafficcontrol.policy.gloo.solo.io/v2
 kind: RateLimitPolicy
 metadata:
-  name: tracks-rate-limit
+  name: tracks-rate-limit-apikey
   namespace: default
 spec:
   applyToRoutes:

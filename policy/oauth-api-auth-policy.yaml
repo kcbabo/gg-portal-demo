@@ -1,0 +1,28 @@
+apiVersion: security.policy.gloo.solo.io/v2
+kind: ExtAuthPolicy
+metadata:
+  name: oauth-jwt-validation
+  namespace: gloo-mesh-addons
+spec:
+  applyToRoutes:
+  - route:
+      labels:
+        usagePlans: "dev-portal"
+  config:
+    server:
+      name: ext-auth-server
+      namespace: gloo-mesh-addons
+      cluster: gg-demo-single
+    glooAuth:
+      configs:
+      - oauth2:
+          accessTokenValidation:
+            jwt:
+              # localJwks:
+              #   inlineString: >-
+              #     $KEYCLOAK_CERT_KEYS
+              remoteJwks:
+                  url: http://keycloak.keycloak.svc.cluster.local/realms/master/protocol/openid-connect/certs
+            dynamicMetadataFromClaims:
+              - key: usagePlan
+                value: usagePlan

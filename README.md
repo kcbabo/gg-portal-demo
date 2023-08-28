@@ -228,7 +228,7 @@ Apart from the `portalMetadata` field, this is a standard Gloo Gateway `RouteTab
 Note that routes can have `labels`. This mechanism is used to wire in various policies. For example, the `tracks-api` route has the label `usagePlans: dev-portal`. This `usagePlan` is defined in the following `ExtAuthPolicy` and defines:
 
 ```bash
-cat policy/auth-policy.yaml
+cat policy/apikey-api-auth-policy.yaml
 ```
 
 Observe that the `applyToRoutes` field of this resource states that the routes to which this policy should be applied are the routes that have the `usagePlans: dev-portal` label
@@ -273,7 +273,7 @@ curl -v api.example.com/trackapi/v1.0/tracks
 NOTE: For demo purposes, no security has been enabled on this endpoint/service yet. The API will be secured after we apply the `ExtAuthPolicy`:
 
 ```bash
-kubectl apply -f policy/auth-policy.yaml
+kubectl apply -f policy/apikey-api-auth-policy.yaml
 ```
 
 When we run the cURL command again, a _401 Unauthorized_ is returned as expected.
@@ -439,10 +439,10 @@ kubectl apply -f dev-portal.yaml
 
 Refresh the Dev Portal UI. In the _API Usage Plans & Keys_ screen at http://developer.example.com/usage-plans, you will still see zero plans available for both our _Tracks_ and _Petstore_ API. This is because we have on yet applied the required rate-limiting policies to our APIs. Let's apply a policy to our _Tracks_ API.
 
-To apply a rate-limiting policy to our _Tracks_ API, we apply the `policy/rl-policy.yaml` file. This policy uses labels to apply the policy to routes. In this demo, all routes with the label `usagePlans: dev-portal` will get the policy applies. This includes our _Tracks_ API route.
+To apply a rate-limiting policy to our _Tracks_ API, we apply the `policy/rl-policy-apikey.yaml` file. This policy uses labels to apply the policy to routes. In this demo, all routes with the label `usagePlans: dev-portal` will get the policy applies. This includes our _Tracks_ API route.
 
 ```bash
-kubectl apply -f policy/rl-policy.yaml
+kubectl apply -f policy/rl-policy-apikey.yaml
 ```
 
 We can verify that the policy has been applied to our _Tracks_ API Product by checking the status of the RouteTable:
