@@ -121,6 +121,80 @@ fi
 popd
 
 if [ "$BACKSTAGE_ENABLED" = true ] ; then
+  kubectl create ns backstage
+
+  # Create a backstage service account that can access the Kubernetes API.
+  kubectl -n backstage create serviceaccount backstage-kube-sa
+  
+  kubectl apply -f - <<EOF
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    name: backstage-kube-sa-secret
+    namespace: backstage
+    annotations:
+      kubernetes.io/service-account.name: backstage-kube-sa
+  type: kubernetes.io/service-account-token
+EOF
+
+  kubectl apply -f - <<EOF
+  apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRole
+  metadata:
+    name: backstage-read-only
+  rules:
+    - apiGroups:
+        - '*'
+      resources:
+        - pods
+        - configmaps
+        - services
+        - deployments
+        - replicasets
+        - horizontalpodautoscalers
+        - ingresses
+        - statefulsets
+        - limitranges
+        - daemonsets
+      verbs:
+        - get
+        - list
+        - watch
+    - apiGroups:
+        - batch
+      resources:
+        - jobs
+        - cronjobs
+      verbs:
+        - get
+        - list
+        - watch
+    - apiGroups:
+        - metrics.k8s.io
+      resources:
+        - pods
+      verbs:
+        - get
+        - list
+EOF
+
+  kubectl apply -f - <<EOF
+  apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: backstage-kube-sa-read-only
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: backstage-read-only
+  subjects:
+  - kind: ServiceAccount
+    name: backstage-kube-sa
+    namespace: backstage
+EOF
+
   printf "\nDeploying Backstage.\n"
-  helm upgrade --install gp-portal-demo-backstage ddoyle-gloo-demo/gp-portal-demo-backstage --namespace backstage --create-namespace --version 0.1.3
+  helm upgrade --install gp-portal-demo-backstage ddoyle-gloo-demo/gp-portal-demo-backstage --namespace backstage --create-namespace --version 0.1.4 \
+  --set kubernetes.skipTLSVerify=true
+
 fi
