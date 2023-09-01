@@ -21,7 +21,7 @@ export KEYCLOAK_SECRET=${secret}
 export REG_ID=${regid}
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"publicClient": true, "serviceAccountsEnabled": true, "directAccessGrantsEnabled": true, "authorizationServicesEnabled": true, "redirectUris": ["http://developer.example.com/*", "https://developer.example.com/*", "http://localhost:7007/gloo-platform-portal/*", "http://localhost:4000/*", "http://localhost:3000/*"], "webOrigins": ["*"]}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
 
-[[ -z "$KEYCLOAK_SECRET" || $KEYCLOAK_SECRET == null ]] && { echo "Faled to create client in Keycloak"; exit 1;}
+[[ -z "$KEYCLOAK_SECRET" || $KEYCLOAK_SECRET == null ]] && { echo "Failed to create client in Keycloak"; exit 1;}
 
 # Add the group attribute in the JWT token returned by Keycloak
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X POST -H "Content-Type: application/json" -d '{"name": "group", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-attribute-mapper", "config": {"claim.name": "group", "jsonType.label": "String", "user.attribute": "group", "id.token.claim": "true", "access.token.claim": "true"}}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}/protocol-mappers/models
@@ -55,6 +55,21 @@ printf "Client-ID: $KEYCLOAK_SA_CLIENT_ID\n"
 printf "Client-Secret: $KEYCLOAK_SA_SECRET\n\n"
 export CLIENT_ID=$KEYCLOAK_SA_CLIENT_ID
 export CLIENT_SECRET=$KEYCLOAK_SA_SECRET
+
+if [ "$BACKSTAGE_ENABLED" = true ] ; then
+  echo "Creating K8S Secret for CLIENT_SECRET in backstage namespace."
+  
+  kubectl apply -f - <<EOF
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    name: portal-sa-client-secret
+    namespace: backstage
+  type: extauth.solo.io/oauth
+  data:
+    SA_CLIENT_SECRET: $(echo -n ${CLIENT_SECRET} | base64)
+EOF
+fi
 
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"publicClient": false, "standardFlowEnabled": false, "serviceAccountsEnabled": true, "directAccessGrantsEnabled": false, "authorizationServicesEnabled": false}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
 # Add the group attribute to the JWT token returned by Keycloak
@@ -125,7 +140,7 @@ export PARTNER_KEYCLOAK_SECRET=${secret}
 export REG_ID=${regid}
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d '{"publicClient": true, "serviceAccountsEnabled": true, "directAccessGrantsEnabled": true, "authorizationServicesEnabled": true, "redirectUris": ["http://developer.example.com/*", "https://developer.example.com/*", "http://localhost:7007/gloo-platform-portal/*", "http://localhost:4000/*", "http://localhost:3000/*"], "webOrigins": ["*"]}' $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}
 
-[[ -z "$PARTNER_KEYCLOAK_SECRET" || $PARTNER_KEYCLOAK_SECRET == null ]] && { echo "Faled to create client in Keycloak"; exit 1;}
+[[ -z "$PARTNER_KEYCLOAK_SECRET" || $PARTNER_KEYCLOAK_SECRET == null ]] && { echo "Failed to create client in Keycloak"; exit 1;}
 
 kubectl apply -f - <<EOF
 apiVersion: v1
