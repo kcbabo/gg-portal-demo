@@ -6,11 +6,9 @@ metadata:
   description: Tracks API 1.0
   annotations:
     backstage.io/kubernetes-label-selector: 'app=tracks-rest-api-1.0'
-    # backstage.io/kubernetes-id: value
 spec:
   type: service
   lifecycle: production
   owner: group:track-managers
   providesApis:
     - default/catstronauts-1.0
-# default:Catstronauts-1.0
