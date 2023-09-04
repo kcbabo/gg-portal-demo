@@ -6,6 +6,7 @@ metadata:
   labels:
      portal: dev-portal
      api: petstore
+     app: pets-rest-api
 spec:
   portalMetadata:
     apiProductId: Petstore
