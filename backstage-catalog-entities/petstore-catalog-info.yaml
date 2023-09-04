@@ -5,7 +5,7 @@ metadata:
   namespace: default
   description: Petstore API
   annotations:
-    backstage.io/kubernetes-label-selector: 'app: pets-rest-api'
+    backstage.io/kubernetes-label-selector: 'app=pets-rest-api'
 spec:
   type: service
   lifecycle: production
