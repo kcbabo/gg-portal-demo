@@ -1,7 +1,7 @@
 apiVersion: trafficcontrol.policy.gloo.solo.io/v2
 kind: RateLimitPolicy
 metadata:
-  name: tracks-rate-limit
+  name: tracks-rate-limit-oauth
   namespace: default
 spec:
   applyToRoutes:
@@ -14,7 +14,7 @@ spec:
       namespace: gloo-mesh-addons
       cluster: gg-demo-single
     ratelimitClientConfig:
-      name: usage-plans
+      name: usage-plans-oauth
       namespace: gloo-mesh-addons
       cluster: gg-demo-single
     serverSettings:

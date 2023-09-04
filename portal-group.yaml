@@ -13,7 +13,9 @@ spec:
   accessLevel:
     apis:
     - labels:
-          api: tracks
+          api: tracks-1.0
+    - labels:
+          api: tracks-1.1
     usagePlans:
     - bronze
     - silver

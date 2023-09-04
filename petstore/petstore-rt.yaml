@@ -6,12 +6,19 @@ metadata:
   labels:
      portal: dev-portal
      api: petstore
+     app: pets-rest-api
 spec:
   portalMetadata:
+    apiProductId: Petstore
+    apiVersion: "1.0"
     title: Petstore REST API
     description: Totally awesome API for all things pets!
+    contact: petstore-support@solo.io
   http:
   - name: pets-api
+    labels:
+      usagePlans: dev-portal
+      cors-policy: api
     matchers:
     - uri:
         prefix: /pet

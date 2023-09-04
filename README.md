@@ -2,6 +2,21 @@
 
 ## Installation
 
+This demo comes with a number of components, including:
+* Gloo Platform Portal
+* DevPortal UI (front-end)
+* Backstage Internal Development Platform
+* API Usage and Analytics with OTel and Grafana
+
+The latter two features, Backstage and API Analytics can be enabled/disabled via configuration option in the `./install/env.sh` script. To enable/disable these features, please configure the following environment variables in that script:
+```bash
+export API_ANALYTICS_ENABLED=false
+export BACKSTAGE_ENABLED=false
+```
+Note that these features enabled by default.
+
+---
+
 This repository comes with a number of installation scripts that allow you to easily deploy this demo to a Kubernetes cluster.
 
 First, we need to to run the `install-gg.sh` script. Note that this step requires you to have a valid Gloo Gateway license key. This will install Gloo Gateway and Portal onto your Kubernetes cluster. It will also download the `meshctl` command line interface.
@@ -11,16 +26,14 @@ cd install
 export GLOO_GATEWAY_LICENSE_KEY={YOUR_GLOO_GATEWAY_LICENSE_KEY}
 ./install-gg.sh
 ```
-Note that the install script will spit out two hostname values that look like this:
+Note that the install script will print the hostname values of the Ingress gateway, like this:
 ```
-Ingress gateway hostame:
-Keycloak service hostame:
+Ingress gateway hostname:
 ```
 
-These demo instructions assume that you have mapped the IP addresses of these hosts to `developer.example.com`, `api.example.com`, and `keycloak.example.com` in /etc/hosts, e.g.
+These demo instructions assume that you have mapped the IP addresses of this host to `developer.example.com`, `api.example.com`, `keycloak.example.com`, `grafana.example.com` and `argocd.example.com` in /etc/hosts, e.g.
 ```
-1.1.1.1 developer.example.com api.example.com 
-1.1.1.2 keycloak.example.com
+1.1.1.1 developer.example.com api.example.com keycloak.example.com grafana.example.com argocd.example.com
 ```
 
 The installation script also automatically downloads and installs the `meshctl` CLI. To have global access from the command line to this CLI, you should add the directory `$HOME/.gloo-mesh/bin` to your PATH system variable:
@@ -29,22 +42,14 @@ export PATH=$HOME/.gloo-mesh/bin:$PATH
 echo $PATH
 ```
 
-There is a bug in secret generation in RC1 where the `ext-auth-service-api-key-secret-key` secret is added to the wrong namespace. If you are running RC2 or later, you do not have to do this! Let's copy the secret to the correct namespace:
-
-```
-kubectl get secret ext-auth-service-api-key-secret-key --namespace=gloo-mesh -o yaml | sed 's/namespace: .*/namespace: gloo-mesh-addons/' | kubectl apply -f -
-```
-
-The install script also deploys a Keycloak instance to support OIDC login for the Dev Portal UI and API. We need to set up a client and some users, so run the `keycloak.sh` script to do that. NOTE: you must set the environment variable `KC_ADMIN_PASS` to the value of your Keycloak password (defaults to 'admin').
-```
-export KC_ADMIN_PASS=<your password>
+The install script also deploys a Keycloak instance to support OIDC login for the Dev Portal UI and API. We need to set up a client and some users, so run the `keycloak.sh` script to do that.
+```bash
 ./keycloak.sh
 ```
 
-Next, run the `init.sh` script to pre-provision your environment with some authentication, rate-limit policies, etc. (see the `init.sh` file for details). This file needs to be executed from the repo's root directory.
+Next, run the `init.sh` script to pre-provision your environment with some authentication, rate-limit policies, routetables, etc. (see the `init.sh` file for details).
 ```bash
-cd ..
-./install/init.sh
+./init.sh
 ```
 
 Access Gloo Mesh dashboard using the `meshctl` CLI (make sure you've added the `meshctl` to your PATH system variable):
@@ -59,29 +64,55 @@ kubectl port-forward -n gloo-mesh svc/gloo-mesh-ui 8090:8090
 open http://localhost:8090
 ```
 
+### DevPortal UI
+To access the DevPortalUI (the frontend UI of our Developer Portal), we need to make the service that hosts our developer portal accessible from our local environment. We do this by port-forwarding into the service:
+```bash
+kubectl -n gloo-mesh-addons port-forward services/portal-frontend 4000
+```
+
+> **Note**
+> the reason for port-forwarding to localhost instead of exposing the UI via the gateway is OAuth/OIDC login flow. Because th DevPortalUI uses "Authorization Code Flow with PKCE", it either needs to run from localhost, or from a secured context, i.e. a HTTPS/TLS protected URL with non-self-signed certificates. Since this would require us to manage certificates, for the purpose of the demo we've decided to run the UI from localhost.
+
+
+### Backstage
+The demo provides a Backstage environment with the Gloo Platform Portal Backstage plugins installed.
+
+The Gloo Platform Portal Backstage back-end plugin requires access to `keycloak.example.com` and `developer.example.com` hosts to acquire an access-token for the portal server and to access the portal server. In this demo we've exposed these hostnames via Gloo Gateway using routetables, and have mapped these hostnames to the Gloo Gateway Ingress ip address. Since the Backstage container in our Kubernetes environment cannot resolve these hostnames, we need to add some mappig rules to the Kubernetes CoreDNS configuration to map these hostnames to the location of the Ingress Gateway. 
+
+Navigate to the `install` directory of the demo, and execute the following script:
+
+```bash
+./k8s-coredns-config.sh
+```
+
+This will add the following 2 mapping rules to the CoreDNS configuration file:
+
+```
+rewrite name keycloak.example.com istio-ingressgateway.gloo-mesh-gateways.svc.cluster.local
+rewrite name developer.example.com istio-ingressgateway.gloo-mesh-gateways.svc.cluster.local
+```
+
+Restart the Backstage deployment with the following command:
+```bash
+kubectl -n backstage rollout restart deployment backstage
+```
+
+To make the Backstage environment accessible, we port-forward into the backstage service"
+```bash
+kubectl -n backstage port-forward services/backstage 7007:80
+```
+
+> **Note**
+> As with the DevPortalUI, the Backstage environment also uses "Authorization Code Flow with PKCE", so it also needs to run from localhost, or from a secured context, i.e. a HTTPS/TLS protected URL with non-self-signed certificates. Since this would require us to manage certificates, for the purpose of the demo we've decided to also run the Backstage UI from localhost.
+
+
 ---
 
-**Note**:
-
-If you're running this demo on a local Kubernetes cluster like _minikube_, the script might not provide a hostname for the Keycloak service and Ingress gateway. In that case you can, for example, create a tunnel to your cluster with `minikube tunnel` and map your local loopback address (i.e. 127.0.0.1) to the hosts mentioned earlier in /etc/hosts, e.g.
-
-```
-127.0.0.1 developer.example.com api.example.com keycloak.example.com
-
-```
-The second thing that you would need to do in such an environment is change the Keycloak URL in the installed authentication policy to point to the Kubernetes service DNS for the Keycloak service, and add this DNS name to your /etc/hosts file:
-
-Patch the authentication policy using the following command:
-```bash
-kubectl -n gloo-mesh patch ExtAuthPolicy oidc-auth --type "json" -p '[{"op":"replace","path":"/spec/config/glooAuth/configs/0/oauth2/oidcAuthorizationCode/issuerUrl","value":"http://keycloak.keycloak.svc.cluster.local:8080/realms/master/"}]'
-```
-
-Add the following line to your /etc/hosts file:
-```
-127.0.0.1 keycloack.keycloak.svc.cluster.local
-```
-
-This allows both the Gloo authentication server and your browser to communicate with the Keycloak identity provider.
+> **Note**
+> If you're running this demo on a local Kubernetes cluster like _minikube_, the script might not provide a hostname for the Keycloak service and Ingress gateway. In that case you can, for example, create a tunnel to your cluster with `minikube tunnel` and map your local loopback address (i.e. 127.0.0.1) to the hosts mentioned earlier in /etc/hosts, e.g.
+> ```
+> 127.0.0.1 developer.example.com api.example.com keycloak.example.com
+> ```
 
 ---
 
@@ -146,14 +177,16 @@ kubectl create ns tracks
 Next, we can deploy the application:
 
 ```bash
-kubectl apply -f apis/tracks-api.yaml
+kubectl apply -f apis/tracks-api-1.0.yaml
 ```
 
 While the app starts up, let's take a look at the Deployment and Service in the YAML file:
 
 ```bash
-cat apis/tracks-api.yaml
+cat apis/tracks-api-1.0.yaml
 ```
+
+Notice that there are 2 Deployments defined in this file, one for version 1.0.0 of the service, and one for version 1.0.1, which are both exposed via the same Service version 1.0. This allows us to later in the demo demonstrate a blue-green or canary deployment of our service.
 
 The one thing that is unique about this YAML file is the `gloo.solo.io/scrape-openapi-source` annotation on the `Service` object, which tells the Gloo Platform from where to get the OpenAPI specification of the given service.
 If developers don't want to annotate their services, that's fine too. The APIDoc resource can simply be added separetely and you don't need to use discovery.
@@ -161,7 +194,7 @@ If developers don't want to annotate their services, that's fine too. The APIDoc
 We can inspect the _Tracks_ service's `swagger.json` specification as follows:
 
 ```bash
-kubectl -n tracks port-forward services/tracks-rest-api 5000:5000
+kubectl -n tracks port-forward services/tracks-rest-api-1-0 5000:5000
 ```
 ```bash
 open http://localhost:5000/swagger.json
@@ -174,7 +207,7 @@ Since we have annotated the _Tracks_ service with our `gloo.solo.io/scrape-opena
 kubectl -n tracks get apidoc
 ```
 ```bash
-kubectl -n tracks get apidoc tracks-rest-api-service -o yaml
+kubectl -n tracks get apidoc tracks-rest-api-1-0-service -o yaml
 ```
 
 The APIDoc defines both the API Definition and the destination that serves that API, based on the cluster, namespace, name selectors and a port.
@@ -183,7 +216,7 @@ Now that we have the API deployed, we can expose it to the outside world. This i
 The `tracks/tracks-api-rt.yaml` file contains the definition of the `RouteTable` that exposes the _Tracks_ API:
 
 ```bash
-cat tracks/tracks-api-rt.yaml
+cat tracks/tracks-api-rt-1.0.yaml
 ```
 
 The `portalMetadata` field in the `RouteTable` resource allows us to specify additional metadata about our API. The metadata is provided via the Gloo Portal REST API, and from there, can be exposed in the Developer Portal UI. This metadata can include fields like _licence_, _title_, _description_, _service owner_, _data classification_, etc.
@@ -195,7 +228,7 @@ Apart from the `portalMetadata` field, this is a standard Gloo Gateway `RouteTab
 Note that routes can have `labels`. This mechanism is used to wire in various policies. For example, the `tracks-api` route has the label `usagePlans: dev-portal`. This `usagePlan` is defined in the following `ExtAuthPolicy` and defines:
 
 ```bash
-cat policy/auth-policy.yaml
+cat policy/apikey-api-auth-policy.yaml
 ```
 
 Observe that the `applyToRoutes` field of this resource states that the routes to which this policy should be applied are the routes that have the `usagePlans: dev-portal` label
@@ -203,7 +236,7 @@ Observe that the `applyToRoutes` field of this resource states that the routes t
 Let's apply the `RouteTable` resource:
 
 ```bash
-kubectl apply -f tracks/tracks-api-rt.yaml
+kubectl apply -f tracks/tracks-api-rt-1.0.yaml
 ```
 
 We can now see the API in the Gloo Platform UI at http://localhost:8090/apis
@@ -233,25 +266,25 @@ kubectl apply -f api-example-com-rt.yaml
 We should now be able to cURL that endpoint. Note that you might need to edit your `/etc/hosts` file to map the `api.example.com` domain to the ip-address of your Kubernetes cluster's ingress.
 
 ```bash
-curl -v api.example.com/trackapi/tracks
+curl -v api.example.com/trackapi/v1.0/tracks
 ```
 
 #### Security
 NOTE: For demo purposes, no security has been enabled on this endpoint/service yet. The API will be secured after we apply the `ExtAuthPolicy`:
 
 ```bash
-kubectl apply -f policy/auth-policy.yaml
+kubectl apply -f policy/apikey-api-auth-policy.yaml
 ```
 
 When we run the cURL command again, a _401 Unauthorized_ is returned as expected.
 
 ```bash
-curl -v api.example.com/trackapi/tracks
+curl -v api.example.com/trackapi/v1.0/tracks
 ```
 ```bash
 *   Trying 127.0.0.1:80...
 * Connected to api.example.com (127.0.0.1) port 80 (#0)
-> GET /trackapi/tracks HTTP/1.1
+> GET /trackapi/v1.0/tracks HTTP/1.1
 > Host: api.example.com
 > User-Agent: curl/7.86.0
 > Accept: */*
@@ -298,7 +331,7 @@ kubectl -n gloo-mesh get PortalConfig developer-portal-gloo-mesh-gg-demo-single 
 Note that the APIDoc that is referenced by the PortalConfig is a stitched API:
 
 ```bash
-kubectl -n gloo-mesh get apidoc tracks-rt-stitched-openapi-gg-demo-single-gloo-mesh-gateways-gg-demo-single -o yaml
+kubectl -n gloo-mesh get apidoc tracks-rt-1.0-stitched-openapi-gg-demo-single-gloo-mesh-gateways-gg-demo-single -o yaml
 ```
 
 This schema is stitched from all the `APIDoc` resources that are exposed via a given `RouteTable`. In the case of the _Tracks_ API, this is only a single `APIDoc`.
@@ -306,26 +339,33 @@ This schema is stitched from all the `APIDoc` resources that are exposed via a g
 We can now cURL the REST API definition from the developer portal:
 
 ```bash
-curl -v developer.example.com/portal-server/v1/apis/tracks-rt-gloo-mesh-gateways-gg-demo-single/schema
+curl -v developer.example.com/v1/apis/Catstronauts-1.0/schema
 ```
 
 A list of all APIs exposed via this developer portal can be fetched with the following cURL command:
 
 ```bash
-curl -v developer.example.com/portal-server/v1/apis
+curl -v developer.example.com/v1/apis
 ```
 
-The example Developer Portal UI is deployed as a Node-based service in our cluster. To access the developer portal UI, open http://developer.example.com in your browser.
+The example Developer Portal UI is deployed as a Node-based service in our cluster. To access the developer portal UI, open http://localhost:4000 in your browser:
 
 ```bash
-open http://developer.example.com
+open http://localhost:4000
 ```
 
 In the Developer Portal UI we can view all the APIs that have been exposed via our Developer Portal and too which we have access (authentication and authorization flows to be added later).
 
 Click on the _Tracks_ API to get the OpenAPI doc from which you can inspect all the RESTful resources and the operations that the API exposes.
 
-NOTE: A login flow has not been implemented yet in this Developer Portal UI Starter application. Once authentication has been implemented,  users have an identity and then can look the usage plans for the APIs and generate API keys.
+### Backstage
+Apart from the Developer Portal UI, the demo also provides a [Backstage](https://backstage.io/) internal developer platform (IDP) environment with the [Gloo Platform Portal Backstage plugin](https://github.com/solo-io/dev-portal-backstage-public#readme) pre-installed. To access the Backstage IDP, open http://localhost:7007 in your browser:
+
+```bash
+open http://localhost:7007
+```
+
+In the left navigation menu of the Backstage UI, click on `Gloo Portal` to access the Gloo Platform Portal functionality. Like in the DevPortal UI, the Backstage environment allows you to view and explore APIs, try them out using the integrated Swagger UI, view Usage Plans and create and manage API-Keys.
 
 
 ### Pet Store API
@@ -399,16 +439,16 @@ kubectl apply -f dev-portal.yaml
 
 Refresh the Dev Portal UI. In the _API Usage Plans & Keys_ screen at http://developer.example.com/usage-plans, you will still see zero plans available for both our _Tracks_ and _Petstore_ API. This is because we have on yet applied the required rate-limiting policies to our APIs. Let's apply a policy to our _Tracks_ API.
 
-To apply a rate-limiting policy to our _Tracks_ API, we apply the `policy/rl-policy.yaml` file. This policy uses labels to apply the policy to routes. In this demo, all routes with the label `usagePlans: dev-portal` will get the policy applies. This includes our _Tracks_ API route.
+To apply a rate-limiting policy to our _Tracks_ API, we apply the `policy/rl-policy-apikey.yaml` file. This policy uses labels to apply the policy to routes. In this demo, all routes with the label `usagePlans: dev-portal` will get the policy applies. This includes our _Tracks_ API route.
 
 ```bash
-kubectl apply -f policy/rl-policy.yaml
+kubectl apply -f policy/rl-policy-apikey.yaml
 ```
 
 We can verify that the policy has been applied to our _Tracks_ API Product by checking the status of the RouteTable:
 
 ```bash
-kubectl -n gloo-mesh-gateways get routetable tracks-rt -o yaml
+kubectl -n gloo-mesh-gateways get routetable tracks-rt-1.0 -o yaml
 ```
 
 In the `status` section of the output, we can see that both the security policy and trafficcontrol policy have been applied:
@@ -435,7 +475,7 @@ cat dev-portal.yaml
 When we apply this configuration to our _Tracks_ API Product/RouteTable, we can see that the product disappears from the Dev Portal UI:
 
 ```bash
-kubectl -n gloo-mesh-gateways patch routetable tracks-rt --type "json" -p '[{"op":"add","path":"/metadata/labels/portal-visibility","value":"private"}]'
+kubectl -n gloo-mesh-gateways patch routetable tracks-rt-1.0 --type "json" -p '[{"op":"add","path":"/metadata/labels/portal-visibility","value":"private"}]'
 ```
 
 Let's login to the Portal to see if we can get access to the _Tracks_ API again. In the Dev Portal UI at http://developer.example.com, click on the _Login_ button in the upper right corner. This should bring you to the Keycloak login screen. Login with username `user1` and password `password`. After succesfully logging in, you should be redirected to the Dev Portal UI. Click on the _APIs_ button in the top-right corner and observe that the _Tracks_ API is still not visible. This is because, when API Products are marked as private, we need define which users can access it. This is done via a `PortalGroup` configuration.
@@ -492,4 +532,130 @@ curl -v -H "api-key:{api-key}" api.example.com/trackapi/tracks
 ---
 
 
+#### API Usage and Analytics
 
+If you've installed the demo with the API Usage and Analytics feature enabled (the default), here is a Grafana dashboard available at `http://grafana.example.com`:
+
+```bash
+open http://grafana.example.com
+```
+
+Use the username `admin` and password `admin` to login. When asked to change the password, click on `Skip` at the bottom of the modal.
+
+To access the Gloo Platform Portal dashboard, click on the hamburger menu in the top left and click on `Dashoards`. Click on `General` folder icon and click on `API Dashboard`, which will open the Gloo Platform Portal dashboard.
+
+In this dashboard the user can see various metrics and information about the API Products and APIs, including:
+* Total Requests
+* Total Active Users
+* Error Count
+* Top API Consumers
+* Request Latency
+* API Response Status Codes
+* etc.
+
+Furthermore, the dashboard contains various powerful filters (top of the screen) that allows a user to select that specific information that they are interested in. 
+
+> **Note**
+> The `User ID` filter only shows the first 100 user ids of the top API consumers. This dropdown can be filtered by using `Filter Users` filter to select that specific `User ID` you're interested in, if that id is not in the top 100 API consumers list.
+
+The API Analytics feature is based on the Gloo Gateway/Envoy access logs, and an OpenTelemetry pipeline that receives the access log information and exports it to a Clickhouse datastore. You can inspect the log information used by the API Analytics feature by look at the Gloo Gateway access logs (replace {id} with t):
+
+```bash
+kubectl -n gloo-mesh-gateways logs -f deployments/istio-ingressgateway-1-17-2
+```
+
+#### GitOps / ArgoCD
+
+
+##### Installation
+These instructions assume that you have the `argocd` CLI installed on your machine. For installation instructions, please consult: https://argo-cd.readthedocs.io/en/stable/cli_installation/
+
+To install Argo CD on our Kubernetes cluster, navigate to  the `install/argocd` directory and run the command:
+
+```bash
+./install-argocd.sh
+```
+
+This will install a default deployment of ArgoCD, without https and with the username/pasword: admin/admin. Note that this is an insecure setup of Argo CD and only intended for demo purposes. This deployment should not be used in a production environment.
+
+The installation will add a route to Gloo Gateway for the `argocd.example.com` host. During the initial deployment of this demo you should have already added a line to your `/etc/hosts` file that maps the `argocd.example.com` hostname to the ip-address of the ingress gateway.
+
+Navigate to `http://argocd.example.com` and login to the Argo CD console with username `admin` and password `admin`. You should see an empty Argo CD environment.
+
+We can now login to Argo CD with the CLI. From a terminal, login using the following command:
+
+```bash
+argocd login argocd.example.com:80
+```
+
+You will get a message that the server is not configured with TLS. Enter `y` to proceed. Login with the same username and password combination, i.e. `admin:admin`.
+
+##### Deploying the Petstore APIProduct
+> **Note** 
+> If you already have the Petstore APIProduct and its services (Pets, Users, Store) deployed to your environment, please remove them.
+
+Once logged in to Argo CD with the CLI, we can deploy our Petstore service using a pre-created Helm chart that can be found [here](https://github.com/DuncanDoyle/gp-portal-demo-petstore-helm-demo). To use this repository, fork it your own GitHub account so you can make updates to the the repository and observe how Argo CD and Helm reconciliate state and deploy your changes to the Kubernetes cluster. After you've forked the repository, run the following command to add this deployment to the Argo CD environment, replacing {GITHUB_USER} with the GitHub account in which you've forked the repository:
+
+```bash
+argocd app create petstore-apiproduct --repo https://github.com/{GITHUB_USER}/gp-portal-demo-petstore-helm-demo.git --revision main --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web
+```
+
+Navigate back to the UI and observe that the `petstore-apiproduct` has been added to your Argo CD environment. Notice that the `status` is `out of sync`. Click the `Sync` button in the UI to sync the state of the project with the Kubernetes cluster. In the syncrhonization panel that slides in, click `Synchronize`.
+
+Open a terminal and observe that the Petstore APIProduct has been deployed, including a deployment, service, routetable, etc.:
+
+```bash
+kubectl -n default get all
+```
+
+```bash
+kubectl -n gloo-mesh-gateways get rt petstore-rt -o yaml
+```
+
+Observe that Gloo Platform Portal has scraped the services (Pets, Store and User) for their OpenAPI specifications and that a stitched APIDoc has been created for the Petstore API product:
+
+```bash
+kubectl get apidoc -A
+```
+
+Open the Developer Portal UI (http://localhost:4000), and observe that the PetStore API product has been added to the API catalog.
+
+You can now manage the Petstore APIProduct using a GitOps approach. Simply make a change to the Petstore APIProduct Helm chart in your Git repository, for example add or remove one the services (Pets, Users, Store) from the API Product, push the change to Git and synchronize the state of the application using the `Refresh` and `Sync` buttons in the Argo CD UI.
+
+
+##### Managing Gloo Platform Portal configuration
+
+Apart from deploying and manager API Products using Argo CD, the Kubernetes native approach of Gloo Platform Portal means that we can manage the entire platform's configuration using GitOps. To demonstrate this, we will show how the Portal's rate-limiting policies and Usage Plans can be maneged with Argo CD.
+
+We have created a Helm chart that configures the Portal's rate-limiting policies. This chart be found [here](https://github.com/DuncanDoyle/gp-portal-platform-team-helm-demo). As with Petstore APIProduct GitOps example, you will need to fork this repository to your own GitHub account so you can make changes to it.
+
+After you've forked the repository, run the following command to add this deployment to the Argo CD environment, replacing {GITHUB_USER} with the GitHub account in which you've forked the repository:
+
+```bash
+argocd app create gp-portal-platform-config --repo https://github.com/{GITHUB_USER}/gp-portal-platform-team-helm-demo.git --revision main --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web
+```
+
+Navigate back to the Argo CD UI and observe that the `gp-portal-platform-config` project has been added to your Argo CD environment. Notice that the `status` is `out of sync`. Click the `Sync` button in the UI to sync the state of the project with the Kubernetes cluster. In the syncrhonization panel that slides in, click `Synchronize`.
+
+You can now manage the rate-limit policies and Usage Plans using GitOps. In the forked `gp-portal-platform-team-helm-demo` repository, open the file `templates/policy/rate-limit-server-config.yaml`. Add a `simpleDescriptor` entry that defines the "Diamond" usage plan:
+
+```
+- simpleDescriptors:
+    - key: userId
+    - key: usagePlan
+      value: platinum
+    rateLimit:
+      requestsPerUnit: 10000
+      unit: MINUTE
+```
+
+Save the file. Next, open the file `templates/dev-portal.yaml` and  add a description for the new Usage Plan:
+
+```
+- name: platinum
+  description: "The shining usage plan!"
+```
+
+Save the file. Commit both the files to your Git repository and push the changes to the origin repository in your GitHub account.
+
+In the Argo CD UI, click on the `Refresh` button of the `gloo-portal-platform-config` project and observe that the status changes to `OutOfSync`. Click on the `Sync` button, and in the panel that slides in, click on `Synchronize`. Your comnfiguration changes are now synchronized with the Kubernetes cluster and your newly configured Usage Plan is available. Go the DevPortal UI and login. When logged in, click on your username and click on `API-Keys`. You should now see your new "Diamond" usage plan with 10000 requests per minute.

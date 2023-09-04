@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tracks-rest-api-1.0
+  name: tracks-rest-api-1.0.0
+  namespace: tracks
+spec:
+  selector:
+    matchLabels:
+      app: tracks-rest-api-1.0
+      version: 1.0.0
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tracks-rest-api-1.0
+        version: 1.0.0
+    spec:
+      containers:
+      - image: duncandoyle/tracks-rest-api:1.0.0
+        imagePullPolicy: Always
+        name: tracks-rest-api-1-0-0
+        ports:
+        - containerPort: 5000
+          name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tracks-rest-api-1.0
+  name: tracks-rest-api-1.0.1
+  namespace: tracks
+spec:
+  selector:
+    matchLabels:
+      app: tracks-rest-api-1.0
+      version: 1.0.1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tracks-rest-api-1.0
+        version: 1.0.1
+    spec:
+      containers:
+      - image: duncandoyle/tracks-rest-api:1.0.1
+        imagePullPolicy: Always
+        name: tracks-rest-api-1-0-1
+        ports:
+        - containerPort: 5000
+          name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    gloo.solo.io/scrape-openapi-source: /swagger.json
+    gloo.solo.io/scrape-openapi-retry-delay: "5s"
+    gloo.solo.io/scrape-openapi-pull-attempts: "3"
+    gloo.solo.io/scrape-openapi-use-backoff: "true"
+  name: tracks-rest-api-1-0
+  namespace: tracks
+  labels:
+    app: tracks-rest-api-1.0
+spec:
+  ports:
+  - port: 5000
+    protocol: TCP
+  selector:
+    app: tracks-rest-api-1.0

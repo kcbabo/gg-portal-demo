@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: tracks-1.1
+  namespace: tracks
+  description: Tracks API 1.1
+  annotations:
+    backstage.io/kubernetes-label-selector: 'app=tracks-rest-api-1.1'
+spec:
+  type: service
+  lifecycle: production
+  owner: group:track-managers
+  providesApis:
+    - default/catstronauts-1.1

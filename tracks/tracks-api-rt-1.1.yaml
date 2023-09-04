@@ -1,0 +1,47 @@
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: tracks-rt-1.1
+  namespace: gloo-mesh-gateways
+  labels:
+     portal: dev-portal
+     api: tracks-1.1
+     app: tracks-rest-api-1.1
+     # uncomment if you want to hide this API from the portal
+    #  portal-visibility: private
+spec:
+  portalMetadata:
+    apiProductId: Catstronauts
+    apiVersion: "1.1"
+    title: Catstronauts REST API
+    description: REST API for Catstronauts to retrieve data for tracks, authors and modules.
+    lifecycle: development
+    termsOfService: |
+      These Terms of Service ("ToS") govern your access to and use of Catstronauts REST API (the "API"), provided by solo.io ("Provider," "we," or "us").
+      By using the API, you agree to comply with these ToS. If you do not agree with any of the terms outlined herein, you must refrain from accessing or using the API.
+    contact: catstronauts-support@solo.io
+    license: |
+      Catstronauts REST API License
+
+      Version 1.0
+
+      This Catstronauts REST API License ("License") is a legal agreement between you (either an individual or a legal entity) and solo.io ("Provider") for the use of the Catstronauts REST API ("API").
+    # custom_metadata:
+    #   pii-sensitive: "true"
+    #   api-category: "demo"
+  http:
+  - name: tracks-api
+    labels:
+      cors-policy: api
+      usagePlans: dev-portal
+    matchers:
+    - uri:
+        prefix: /
+    forwardTo:
+      pathRewrite: /
+      destinations:
+      - ref:
+          name: tracks-rest-api-1-1
+          namespace: tracks
+        port:
+          number: 5000

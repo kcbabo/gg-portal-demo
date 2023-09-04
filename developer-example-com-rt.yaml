@@ -1,0 +1,135 @@
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: developer-example-com-rt
+  namespace: gloo-mesh-gateways
+spec:
+  hosts:
+    - "developer.example.com" # need to update this to developer.example.com
+  virtualGateways:
+    - name: istio-ingressgateway
+      namespace: gloo-mesh-gateways
+  defaultDestination:
+    port:
+      number: 8080
+    ref:
+      name: gloo-mesh-portal-server
+      namespace: gloo-mesh-addons
+      cluster: gg-demo-single
+  http:
+    
+    #
+    # Some mock stuff
+    #
+    # - forwardTo:
+    #     destinations:
+    #       - ref:
+    #           name: mock-api-service
+    #           namespace: mocks
+    #           cluster: gg-demo-single
+    #   name: mock
+    #   labels:
+    #     oauth: "true"
+    #   matchers:
+    #     - uri:
+    #         prefix: /v1/me
+    #       method: GET
+
+
+    #
+    # Portal server routes behind authentication.
+    #
+    - forwardTo: {}
+      name: authn
+      labels:
+        oauth: "true" # apply ext auth policy
+        route: portal-api
+      matchers:
+        #
+        # /v1/me
+        - uri:
+            prefix: /v1/me
+          method: OPTIONS
+        - uri:
+            prefix: /v1/me
+          method: GET
+          headers:
+            - name: Authorization
+              value: "Bearer.*"
+              regex: true
+        
+        # /v1/apis
+        - uri:
+            prefix: /v1/apis
+          method: GET
+          headers:
+            - name: Authorization
+              value: "Bearer.*"
+              regex: true
+        #
+        # /v1/usage-plans
+        - uri:
+            prefix: /v1/usage-plans
+          method: GET
+          headers:
+            - name: Authorization
+              value: "Bearer.*"
+              regex: true
+        #
+        # /v1/api-keys
+        - uri:
+            prefix: /v1/api-keys
+          method: GET
+          headers:
+            - name: Authorization
+              value: "Bearer.*"
+              regex: true
+        - uri:
+            prefix: /v1/api-keys
+          method: POST
+          headers:
+            - name: Authorization
+              value: "Bearer.*"
+              regex: true
+        - uri:
+            prefix: /v1/api-keys
+          method: DELETE
+          headers:
+            - name: Authorization
+              value: "Bearer.*"
+              regex: true
+    #
+    # Public portal server routes.
+    #
+    - forwardTo: {}
+      name: no-auth
+      labels:
+        route: portal-api
+      matchers:
+        - uri:
+            prefix: /v1/apis
+          method: GET
+        - uri:
+            prefix: /v1/usage-plans
+          method: GET
+        - uri:
+            prefix: /v1/api-keys
+          method: GET
+        - uri:
+            prefix: /v1/openapi
+          method: GET
+        #
+        # Allow all these options requests
+        #
+        - uri:
+            prefix: /v1/api-keys
+          method: OPTIONS
+        - uri:
+            prefix: /v1/usage-plans
+          method: OPTIONS
+        - uri:
+            prefix: /v1/apis
+          method: OPTIONS
+        - uri:
+            prefix: /v1/openapi
+          method: OPTIONS

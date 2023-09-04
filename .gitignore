@@ -4,3 +4,6 @@ node_modules
 node_modules
 .gloo-mesh
 .idea
+opa
+mock
+poc

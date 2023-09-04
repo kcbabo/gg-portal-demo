@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: partner-portal-frontend
+  namespace: gloo-mesh-addons
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: partner-portal-frontend
+  namespace: gloo-mesh-addons
+  labels:
+    app: portal-frontend
+    service: portal-frontend
+spec:
+  ports:
+    - name: http
+      port: 4000
+      targetPort: 4000
+  selector:
+    app: partner-portal-frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: partner-portal-frontend
+  namespace: gloo-mesh-addons
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: partner-portal-frontend
+  template:
+    metadata:
+      labels:
+        app: partner-portal-frontend
+    spec:
+      serviceAccountName: portal-frontend
+      containers:
+        #- image: kcbabo/portal-frontend-nick:latest
+        - image: portal-frontend:1.36
+          args: ["--host", "0.0.0.0"]
+          #imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
+          name: portal-frontend
+          ports:
+            - containerPort: 4000
+          # env:
+          # - name: "PORTAL_SERVER_URL"
+          #   value: "http://developer.example.com/v1/"
+          # - name: "TOKEN_ENDPOINT"
+          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/token"
+          # - name: "AUTH_ENDPOINT"
+          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/auth"
+          # - name: "LOGOUT_ENDPOINT"
+          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/logout"
+          # - name: "CLIENT_ID"
+          #   value: "portal-client"
+          # - name: "VITE_PORTAL_SERVER_URL"
+          #   value: "http://developer.example.com/v1/"
+          # - name: "VITE_TOKEN_ENDPOINT"
+          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/token"
+          # - name: "VITE_AUTH_ENDPOINT"
+          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/auth"
+          # - name: "VITE_LOGOUT_ENDPOINT"
+          #   value: "http://keycloak.example.com:8080/realms/master/protocol/openid-connect/logout"
+          # - name: "VITE_CLIENT_ID"
+          #   value: "portal-client"

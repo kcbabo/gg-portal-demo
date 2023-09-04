@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: gloo-mesh
+data:
+  grafana.ini: |
+    [paths]
+    provisioning = /etc/grafana/provisioning
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-config
+  namespace: gloo-mesh
+data:
+  all_dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        org_id: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources-config
+  namespace: gloo-mesh
+data:
+  all_datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: ClickHouse
+        type: grafana-clickhouse-datasource
+        isDefault: true
+        uid: clickhouse-access-logs
+        jsonData:
+          defaultDatabase: default
+          port: 9000
+          server: clickhouse.gloo-mesh
+          username: default
+          tlsSkipVerify: true
+        secureJsonData:
+          password: password
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: gloo-mesh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      volumes:
+        - name: grafana-config-volume
+          configMap:
+            name: grafana-config
+            defaultMode: 420
+        - name: grafana-datasources-config-volume
+          configMap:
+            name: grafana-datasources-config
+            defaultMode: 420
+        - name: grafana-dashboards-config-volume
+          configMap:
+            name: grafana-dashboards-config
+            defaultMode: 420
+        - name: grafana-dashboard-files-volume
+          configMap:
+            name: grafana-dashboard-files
+            defaultMode: 420
+      containers:
+        - name: grafana
+          image: grafana/grafana-oss
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - name: GF_INSTALL_PLUGINS
+              value: grafana-clickhouse-datasource
+          volumeMounts:
+            - name: grafana-config-volume
+              mountPath: /etc/grafana/grafana.ini
+              subPath: grafana.ini
+            - name: grafana-datasources-config-volume
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: grafana-dashboards-config-volume
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: grafana-dashboard-files-volume
+              mountPath: /var/lib/grafana/dashboards
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: gloo-mesh
+spec:
+  # type: LoadBalancer
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+  selector:
+    app: grafana

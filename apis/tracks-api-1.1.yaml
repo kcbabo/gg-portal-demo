@@ -2,22 +2,25 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: tracks-rest-api
-  name: tracks-rest-api
+    app: tracks-rest-api-1.1
+  name: tracks-rest-api-1.1
   namespace: tracks
 spec:
   selector:
     matchLabels:
-      app: tracks-rest-api
+      app: tracks-rest-api-1.1
+      version: 1.1.0
   replicas: 1
   template:
     metadata:
       labels:
-        app: tracks-rest-api
+        app: tracks-rest-api-1.1
+        version: 1.1.0
     spec:
       containers:
-      - image: kcbabo/tracks-rest-api:latest
-        name: tracks-rest-api
+      - image: duncandoyle/tracks-rest-api:1.1.0
+        imagePullPolicy: Always
+        name: tracks-rest-api-1-1-0
         ports:
         - containerPort: 5000
           name: http
@@ -30,13 +33,13 @@ metadata:
     gloo.solo.io/scrape-openapi-retry-delay: "5s"
     gloo.solo.io/scrape-openapi-pull-attempts: "3"
     gloo.solo.io/scrape-openapi-use-backoff: "true"
-  name: tracks-rest-api
+  name: tracks-rest-api-1-1
   namespace: tracks
   labels:
-    app: tracks-rest-api
+    app: tracks-rest-api-1.1
 spec:
   ports:
   - port: 5000
     protocol: TCP
   selector:
-    app: tracks-rest-api
+    app: tracks-rest-api-1.1

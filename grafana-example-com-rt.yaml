@@ -1,0 +1,23 @@
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: grafana-rt
+  namespace: gloo-mesh-gateways
+spec:
+  hosts:
+  - grafana.example.com
+  virtualGateways:
+  - name: istio-ingressgateway
+    namespace: gloo-mesh-gateways
+  http:
+  - matchers:
+    - uri:
+        prefix: /
+    forwardTo:
+      destinations:
+        - ref:
+            name: grafana
+            namespace: gloo-mesh
+            cluster: gg-demo-single
+          port:
+            number: 3000

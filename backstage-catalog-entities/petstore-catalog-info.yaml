@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: petstore
+  namespace: default
+  description: Petstore API
+  annotations:
+    backstage.io/kubernetes-label-selector: 'app=pets-rest-api'
+spec:
+  type: service
+  lifecycle: production
+  owner: group:track-managers
+  providesApis:
+    - default/petstore-1.0

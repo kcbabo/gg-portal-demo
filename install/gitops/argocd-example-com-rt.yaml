@@ -1,0 +1,23 @@
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: argocd-example-com-rt
+  namespace: gloo-mesh-gateways
+spec:
+  hosts:
+  - argocd.example.com
+  virtualGateways:
+  - name: istio-ingressgateway
+    namespace: gloo-mesh-gateways
+  http:
+  - matchers:
+    - uri:
+        prefix: /
+    forwardTo:
+      destinations:
+        - ref:
+            name: argocd-server
+            namespace: argocd
+            cluster: gg-demo-single
+          port:
+            number: 80
