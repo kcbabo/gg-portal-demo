@@ -156,6 +156,7 @@ EOF
         - statefulsets
         - limitranges
         - daemonsets
+        - routetables
       verbs:
         - get
         - list
