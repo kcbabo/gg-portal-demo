@@ -27,11 +27,23 @@ read -r apiKey apiKeyId <<<$(curl -k -X POST -d '{ "apiKeyName": "api-analytics-
 printf "\nAPI-Key: $apiKey\n"
 printf "API-Key-ID: $apiKeyId\n"
 
-printf "Calling the Tracks API a number of times. This can take a while."
+printf "Calling the Tracks API v1.0 a number of times. This can take a while."
 for i in {1..1000}
+# for i in {1..100}
 do
-   curl -s -o /dev/null -w "%{http_code}\n" -H "Accept: application/json" -H "api-key: $apiKey" http://api.example.com/trackapi/tracks
-   #curl -I -H "Accept: application/json" -H "api-key: $apiKey" http://api.example.com/trackapi/tracks
+   curl -s -o /dev/null -w "%{http_code}\n" -H "Accept: application/json" -H "api-key: $apiKey" http://api.example.com/trackapi/v1.0/tracks
+   #curl -I -H "Accept: application/json" -H "api-key: $apiKey" http://api.example.com/trackapi/v1.0/tracks
+
+   # TODO: Parse the response and loop over all the individual tracks.
+
+done
+
+printf "Calling the Tracks API v1.1 a number of times. This can take a while."
+for i in {1..1000}
+# for i in {1..100}
+do
+   curl -s -o /dev/null -w "%{http_code}\n" -H "Accept: application/json" -H "api-key: $apiKey" http://api.example.com/trackapi/v1.1/tracks
+   #curl -I -H "Accept: application/json" -H "api-key: $apiKey" http://api.example.com/trackapi/v1.1/tracks
 
    # TODO: Parse the response and loop over all the individual tracks.
 

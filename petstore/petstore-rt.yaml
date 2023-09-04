@@ -9,7 +9,7 @@ metadata:
 spec:
   portalMetadata:
     apiProductId: Petstore
-    apiVersion: 1.0
+    apiVersion: "1.0"
     title: Petstore REST API
     description: Totally awesome API for all things pets!
     contact: petstore-support@solo.io
