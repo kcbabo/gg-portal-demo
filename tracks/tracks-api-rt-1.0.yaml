@@ -6,6 +6,7 @@ metadata:
   labels:
      portal: dev-portal
      api: tracks-1.0
+     app: tracks-rest-api-1.0
      # uncomment if you want to hide this API from the portal
     #  portal-visibility: private
 spec:
