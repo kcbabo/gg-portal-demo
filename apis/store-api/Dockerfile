@@ -17,4 +17,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD [ "json-server", "--host", "0.0.0.0", "--port", "5000", "--routes", "routes.json", "db.json" ]
+CMD [ "json-server", "--host", "::", "--port", "5000", "--routes", "routes.json", "db.json" ]
