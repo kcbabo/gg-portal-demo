@@ -1,7 +1,7 @@
 #!/bin/sh
 
-DOCKER_USER="kcbabo"
+DOCKER_USER="duncandoyle"
 
 docker buildx build --push \
     --platform linux/amd64,linux/arm64 \
-    --tag kcbabo/store-rest-api .
+    --tag duncandoyle/store-rest-api .

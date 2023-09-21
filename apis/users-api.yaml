@@ -16,7 +16,7 @@ spec:
         app: users-rest-api
     spec:
       containers:
-      - image: kcbabo/users-rest-api:latest
+      - image: duncandoyle/users-rest-api:latest
         name: users-rest-api
         ports:
         - containerPort: 5000

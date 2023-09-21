@@ -16,7 +16,7 @@ spec:
         app: pets-rest-api
     spec:
       containers:
-      - image: kcbabo/pets-rest-api:latest
+      - image: duncandoyle/pets-rest-api:latest
         name: pets-rest-api
         ports:
         - containerPort: 5000
