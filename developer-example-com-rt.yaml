@@ -5,7 +5,7 @@ metadata:
   namespace: gloo-mesh-gateways
 spec:
   hosts:
-    - "developer.example.com" # need to update this to developer.example.com
+    - "developer.example.com"
   virtualGateways:
     - name: istio-ingressgateway
       namespace: gloo-mesh-gateways
