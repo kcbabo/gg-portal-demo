@@ -104,7 +104,7 @@
         }
       }
     },
-    "/track/{id}": {
+    "/tracks/{id}": {
       "get": {
         "tags": ["Tracks"],
         "summary": "Find track by ID",
@@ -170,7 +170,7 @@
         }
       }
     },
-    "/track/{id}/modules": {
+    "/tracks/{id}/modules": {
       "get": {
         "tags": ["Tracks"],
         "summary": "Retrieves the list of modules for a given track",
@@ -206,7 +206,7 @@
         }
       }
     },
-    "/track/{id}/numberOfViews": {
+    "/tracks/{id}/numberOfViews": {
       "patch": {
         "tags": ["Tracks"],
         "summary": "Updates the number of views for a track",
