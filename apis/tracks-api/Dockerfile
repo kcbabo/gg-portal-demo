@@ -13,7 +13,9 @@ RUN npm install -g json-server
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY . .
+#COPY . .
+COPY db.json db.json
+COPY public/swagger.json public/swagger.json
 
 EXPOSE 5000
 

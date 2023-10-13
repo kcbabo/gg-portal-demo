@@ -8,7 +8,6 @@ kubectl apply -f portal-frontend.yaml
 kubectl apply -f policy/api-key.yaml
 kubectl apply -f policy/auth-server.yaml
 kubectl apply -f policy/rl-server.yaml
-kubectl apply -f policy/rl-config.yaml
 kubectl apply -f policy/rl-server-config.yaml
 kubectl apply -f policy/rl-client-config-apikey.yaml
 kubectl apply -f policy/rl-client-config-oauth.yaml

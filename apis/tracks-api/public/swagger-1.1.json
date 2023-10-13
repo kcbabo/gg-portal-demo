@@ -1,217 +1,318 @@
 {
-    "swagger": "2.0",
-    "info": {
-      "description": "REST API for Catstronauts to retrieve data for tracks, authors and modules.",
-      "version": "1.1.0",
-      "title": "Catstronauts REST API"
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Catstronauts REST API",
+    "description": "REST API for Catstronauts to retrieve data for tracks, authors and modules.",
+    "version": "1.1.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Tracks",
+      "description": "A track is a collection of modules around a topic for catstronauts to learn about."
     },
-    "tags": [
-      {
-        "name": "Tracks",
-        "description": "A track is a collection of modules around a topic for catstronauts to learn about."
-      },
-      {
-        "name": "Authors"
-      },
-      {
-        "name": "Modules"
-      }
-    ],
-    "paths": {
-      "/tracks": {
-        "get": {
-          "tags": [
-            "Tracks"
-          ],
-          "summary": "Retrieves a list of tracks",
-          "produces": [
-            "application/json"
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful. Returns an array of Track objects.",
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/Track"
+    {
+      "name": "Authors"
+    },
+    {
+      "name": "Modules"
+    }
+  ],
+  "paths": {
+    "/tracks": {
+      "get": {
+        "tags": ["Tracks"],
+        "summary": "Retrieves a list of tracks",
+        "responses": {
+          "200": {
+            "description": "Successful. Returns an array of Track objects.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Track"
+                  }
+                },
+                "examples": {
+                  "test-1": {
+                    "value": [
+                      {
+                        "id": "c_0",
+                        "thumbnail": "https://res.cloudinary.com/dety84pbu/image/upload/v1598465568/nebula_cat_djkt9r.jpg",
+                        "topic": "Cat-stronomy",
+                        "authorId": "cat-1",
+                        "title": "Cat-stronomy, an introduction",
+                        "description": "Curious to learn what Cat-stronomy is all about? Explore the planetary and celestial alignments and how they have affected our space missions.",
+                        "numberOfViews": 163,
+                        "createdAt": "2018-09-10T07:13:53.020Z",
+                        "length": 2377,
+                        "modulesCount": 10,
+                        "modules": [
+                          "l_0",
+                          "l_1",
+                          "l_2",
+                          "l_3",
+                          "l_4",
+                          "l_5",
+                          "l_6",
+                          "l_7",
+                          "l_8",
+                          "l_9"
+                        ]
+                      },
+                      {
+                        "id": "c_1",
+                        "thumbnail": "https://res.cloudinary.com/dety84pbu/image/upload/v1598474100/famous_cats_epuqcr.jpg",
+                        "topic": "Famous Catstronauts",
+                        "authorId": "cat-2",
+                        "title": "Famous Catstronauts",
+                        "description": "Be inspired by famous catstronauts who have made their names legend from across the galaxies. Special guest appearance included, so hold on to your boots!",
+                        "numberOfViews": 86,
+                        "createdAt": "2017-12-06T23:03:08.815Z",
+                        "length": 1916,
+                        "modulesCount": 5,
+                        "modules": ["l_10", "l_11", "l_12", "l_13", "l_14"]
+                      }
+                    ]
+                  },
+                  "test-2": {
+                    "value": [
+                      {
+                        "id": "c_2",
+                        "thumbnail": "https://res.cloudinary.com/dety84pbu/image/upload/v1598457117/spaceSuite_knkmu8.jpg",
+                        "topic": "Kitty space suit",
+                        "authorId": "cat-3",
+                        "title": "Kitty space suit, all you need to know",
+                        "description": "# Fidem dum accipit officio tactaeque extis caecaeque \n ## Caelo scilicet protulit \n Lorem markdownum et naides sumpserat nasci est vulnere mille comitesque \n praeterque crus, cur ruere, per nemus tanta dextra? Dente fluit adspeximus \n dempto, faciem, minimo parentali locorum! Unda an ergo equidem regia hac se est \n ira pugnantem. \n > Invenerit Solem agmine; aut voce melioris Lesbi. Lacrimas ad et, pendens quem, \n > ater venatrixque quis. Sed cacumina tulisti occasus, trisulcis multum, quid. \n > Quam Mercurium tergusque modo ubi, captis reddidit quae posse, rata popularis \n > inferni. \n ## Spatiosumque nigris \n Praemia qua simul fallitur cum et iuppiter inquit adversaque cutem, at dextera, \n alias. Scelus utque dolor, iuncta quamvis, hunc auceps celebrare coetu excussum \n deiectam. Videres nectar utque catenas una Granico corpore, verba Iovis \n intellectumque templum, domum dat et quod. Pedum quod cultusque versus magnorum \n ira ratis coepi conplexibus et armento summa non Dianae, dare ardor adire. \n Carens peperisse; omnem tenus, me sine. \n - Dare prior \n - Est incessit ille mirantum facta fiunt \n - Sed modo deprendit inpediunt sublime quiete \n ## Aeacus carpit hanc vestes senectus pocula \n Et novos esset genetrix glacies; inluxisse protecta, est ante consumptis, \n manumque, Phylius genitore caelarat herbosaque. Phoebus vulnera, clade debita, \n satiantur nefando. \n > Deprensi de velum alas Circaea quies perterrita si mota quam terres, sic si \n > res gerebam viros esse. Medullas ut tenax mandata classe amores vastius siqua, \n > sanabilis sed fiducia Leucon, capaci Orithyiae. Lumen terris digitis ac modo \n > sequentis Cereri te tulerit inspicitur! Subit veneno equi videt genua in \n > aetasque qui sanguisque, mihi flexit vivunt hamadryadas. \n ## At pater gestamina gravi forma \n Nec inter est adopertam nec, supernum et tecta: tapetibus? Genetrix sustinet \n heres pugnae usquam erectos in erant Achilles! \n Fuerat harenae me hiems Pholus tempus Phoebe. Geminis mihi vimen, in vidi \n pigetque in mole cruore, fugat dissuadet!",
+                        "numberOfViews": 61,
+                        "createdAt": "2020-04-20T13:59:10.470Z",
+                        "length": 1823,
+                        "modulesCount": 5,
+                        "modules": ["l_15", "l_16", "l_17", "l_18", "l_19"]
+                      }
+                    ]
+                  }
                 }
               }
-            }
-          }
-        }
-      },
-      "/track/{id}": {
-        "get": {
-          "tags": [
-            "Tracks"
-          ],
-          "summary": "Find track by ID",
-          "description": "Returns a single track",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "Track ID",
-              "required": true,
-              "type": "string",
-              "example": "c_0"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful. Returns a single track.",
-              "schema": {
-                "$ref": "#/definitions/Track"
-              }
-            },
-            "404": {
-              "description": "Track not found."
-            }
-          }
-        }
-      },
-      "/track/{id}/modules": {
-        "get": {
-          "tags": [
-            "Tracks"
-          ],
-          "summary": "Retrieves the list of modules for a given track",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "Track ID",
-              "required": true,
-              "type": "string",
-              "example": "c_0"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful. Returns the list of modules for a given track.",
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/Module"
-                }
-              }
-            },
-            "404": {
-              "description": "Track not found."
-            }
-          }
-        }
-      },
-      "/track/{id}/numberOfViews": {
-        "patch": {
-          "tags": [
-            "Tracks"
-          ],
-          "summary": "Updates the number of views for a track",
-          "description": "",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "Track ID",
-              "required": true,
-              "type": "string",
-              "example": "c_0"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful. Returns the updated Track object.",
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/Track"
-                }
-              }
-            },
-            "404": {
-              "description": "Track not found."
-            }
-          }
-        }
-      },
-      "/author/{id}": {
-        "get": {
-          "tags": [
-            "Authors"
-          ],
-          "summary": "Find author by ID",
-          "description": "Returns a single author",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "Author ID",
-              "required": true,
-              "type": "string",
-              "example": "cat-1"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful. Returns a single author.",
-              "schema": {
-                "$ref": "#/definitions/Author"
-              }
-            },
-            "404": {
-              "description": "Author not found."
-            }
-          }
-        }
-      },
-      "/module/{id}": {
-        "get": {
-          "tags": [
-            "Modules"
-          ],
-          "summary": "Find module by ID",
-          "description": "Returns a single module",
-          "produces": [
-            "application/json"
-          ],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "description": "Module ID",
-              "required": true,
-              "type": "string",
-              "example": "l_0"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful. Returns a single module.",
-              "schema": {
-                "$ref": "#/definitions/Module"
-              }
-            },
-            "404": {
-              "description": "Module not found."
             }
           }
         }
       }
     },
-    "definitions": {
+    "/track/{id}": {
+      "get": {
+        "tags": ["Tracks"],
+        "summary": "Find track by ID",
+        "description": "Returns a single track",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Track ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "c_0": {
+                "value": "c_0"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful. Returns a single track.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Track"
+                },
+                "examples": {
+                  "c_0": {
+                    "value": {
+                      "thumbnail": "https://res.cloudinary.com/dety84pbu/image/upload/v1598465568/nebula_cat_djkt9r.jpg",
+                      "topic": "Cat-stronomy",
+                      "authorId": "cat-1",
+                      "title": "Cat-stronomy, an introduction",
+                      "description": "Curious to learn what Cat-stronomy is all about? Explore the planetary and celestial alignments and how they have affected our space missions.",
+                      "numberOfViews": 163,
+                      "createdAt": "2018-09-10T07:13:53.020Z",
+                      "length": 2377,
+                      "modulesCount": 10,
+                      "modules": [
+                        "l_0",
+                        "l_1",
+                        "l_2",
+                        "l_3",
+                        "l_4",
+                        "l_5",
+                        "l_6",
+                        "l_7",
+                        "l_8",
+                        "l_9"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Track not found.",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/track/{id}/modules": {
+      "get": {
+        "tags": ["Tracks"],
+        "summary": "Retrieves the list of modules for a given track",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Track ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful. Returns the list of modules for a given track.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Module"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Track not found.",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/track/{id}/numberOfViews": {
+      "patch": {
+        "tags": ["Tracks"],
+        "summary": "Updates the number of views for a track",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Track ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful. Returns the updated Track object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Track"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Track not found.",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/author/{id}": {
+      "get": {
+        "tags": ["Authors"],
+        "summary": "Find author by ID",
+        "description": "Returns a single author",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Author ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful. Returns a single author.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Author"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Author not found.",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/module/{id}": {
+      "get": {
+        "tags": ["Modules"],
+        "summary": "Find module by ID",
+        "description": "Returns a single module",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Module ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful. Returns a single module.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Module"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Module not found.",
+            "content": {}
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
       "Track": {
         "type": "object",
         "properties": {
@@ -237,9 +338,6 @@
             "type": "integer"
           },
           "createdAt": {
-            "type": "string"
-          },
-          "createdBy": {
             "type": "string"
           },
           "length": {
@@ -301,3 +399,4 @@
       }
     }
   }
+}

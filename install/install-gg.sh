@@ -21,17 +21,47 @@ fi
 
 helm repo update
 
-curl -sL https://run.solo.io/meshctl/install | GLOO_MESH_VERSION=v$GLOO_VERSION sh -
+if [ "$DEV_VERSION" = true ] ; then
+  # export MESH_CRD_URL="https://storage.googleapis.com/gloo-platform-dev/helm-charts/gloo-mesh-crds/gloo-mesh-crds-${GLOO_VERSION}.tgz"
+  # export MESH_CHART_URL="https://storage.googleapis.com/gloo-platform-dev/helm-charts/gloo-mesh-enterprise/gloo-mesh-enterprise-${GLOO_VERSION}.tgz"
+  export MESH_CRD_URL="https://storage.googleapis.com/gloo-platform-dev/platform-charts/helm-charts/gloo-platform-crds-${GLOO_VERSION}.tgz"
+  export MESH_CHART_URL="https://storage.googleapis.com/gloo-platform-dev/platform-charts/helm-charts/gloo-platform-${GLOO_VERSION}.tgz"
+fi
+
 MESH_HOME=$HOME/.gloo-mesh
 MESHCTL_BIN=$MESH_HOME/bin
+  
+if [ "$DEV_VERSION" = false ] ; then
+  curl -sL https://run.solo.io/meshctl/install | GLOO_MESH_VERSION=v$GLOO_VERSION sh -  
+else 
+  mkdir -p ${MESHCTL_BIN}
+  rm ${MESHCTL_BIN}/meshctl || true
+  if [  "$(uname -m)" = "aarch64" ]; then
+	  GOARCH=arm64
+  elif [ "$(uname -m)" = "arm64" ]; then
+	  GOARCH=arm64
+  else
+	  GOARCH=amd64
+  fi
+  GLOO_MESH_VERSION=v$GLOO_VERSION
+  wget "https://storage.googleapis.com/gloo-platform-dev/meshctl/${GLOO_MESH_VERSION}/meshctl-darwin-${GOARCH}" -O ${MESHCTL_BIN}/meshctl
+  chmod +x ${MESHCTL_BIN}/meshctl
+fi
+
 $MESHCTL_BIN/meshctl version
 
 # install CRDs
-printf "\nInstalling Gloo Gateway CRDs ...\n"
-helm upgrade --install gloo-platform-crds gloo-platform/gloo-platform-crds \
-   --namespace=gloo-mesh \
-   --create-namespace \
-   --version $GLOO_VERSION
+if [ "$DEV_VERSION" = false ] ; then
+  printf "\nInstalling Gloo Gateway CRDs ...\n"
+  helm upgrade --install gloo-platform-crds gloo-platform/gloo-platform-crds \
+    --namespace=gloo-mesh \
+    --create-namespace \
+    --version $GLOO_VERSION
+else
+  helm install gloo-platform-crds $MESH_CRD_URL \
+    --namespace=gloo-mesh \
+    --create-namespace 
+fi
 
 GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single.yaml
 
@@ -45,13 +75,20 @@ printf "\nUsing Helm values file: $GLOO_GATEWAY_HELM_VALUES_FILE\n."
 
 # install GG with addons
 printf "\nInstalling Gloo Gateway ...\n"
-helm upgrade --install gloo-platform gloo-platform/gloo-platform \
-   --namespace gloo-mesh \
-   --version $GLOO_VERSION \
-   --values $GLOO_GATEWAY_HELM_VALUES_FILE \
-   --set common.cluster=$CLUSTER_NAME \
-   --set licensing.glooGatewayLicenseKey=$GLOO_GATEWAY_LICENSE_KEY
-
+if [ "$DEV_VERSION" = false ] ; then
+  helm upgrade --install gloo-platform gloo-platform/gloo-platform \
+    --namespace gloo-mesh \
+    --version $GLOO_VERSION \
+    --values $GLOO_GATEWAY_HELM_VALUES_FILE \
+    --set common.cluster=$CLUSTER_NAME \
+    --set licensing.glooGatewayLicenseKey=$GLOO_GATEWAY_LICENSE_KEY
+else
+  helm install gloo-platform $MESH_CHART_URL \
+    --namespace gloo-mesh \
+    --values $GLOO_GATEWAY_HELM_VALUES_FILE \
+    --set common.cluster=$CLUSTER_NAME \
+    --set licensing.glooGatewayLicenseKey=$GLOO_GATEWAY_LICENSE_KEY
+fi
 
 printf "\nWaiting for gloo-mesh-gateways namespace...\n"
 until kubectl get ns gloo-mesh-gateways &>/dev/null; do
