@@ -11,7 +11,7 @@ spec:
   config:
     server:
       name: ext-auth-server
-      namespace: gloo-mesh-addons
+      namespace: gloo-mesh
       cluster: gg-demo-single
     glooAuth:
       configs:
@@ -25,3 +25,8 @@ spec:
                     url: http://keycloak.keycloak.svc.cluster.local/realms/master/protocol/openid-connect/certs
               dynamicMetadataFromClaims:
                 usagePlan: usagePlan
+        # - opaAuth:
+        #     modules:
+        #     - name: introspection-policy
+        #       namespace: default
+        #     query: "data.test.allow == true"

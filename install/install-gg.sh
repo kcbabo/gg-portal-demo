@@ -63,10 +63,18 @@ else
     --create-namespace 
 fi
 
-GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single.yaml
+if [ "$DEV_VERSION" = false ] ; then
+  GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single.yaml
+else
+  GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-dev.yaml
+fi
 
 if [ "$API_ANALYTICS_ENABLED" = true ] ; then
-  GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-api-analytics.yaml
+  if [ "$DEV_VERSION" = false ] ; then
+    GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-api-analytics.yaml
+  else
+    GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-api-analytics-dev.yaml
+  fi
   printf "\nInstalling Clickhouse password authentication secret.\n"
   kubectl apply -f clickhouse-auth-secret.yaml
 fi

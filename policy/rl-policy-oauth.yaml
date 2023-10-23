@@ -11,15 +11,15 @@ spec:
   config:
     ratelimitServerConfig:
       name: usage-plans
-      namespace: gloo-mesh-addons
+      namespace: gloo-mesh
       cluster: gg-demo-single
     ratelimitClientConfig:
       name: usage-plans-oauth
-      namespace: gloo-mesh-addons
+      namespace: gloo-mesh
       cluster: gg-demo-single
     serverSettings:
       name: rl-server
-      namespace: gloo-mesh-addons
+      namespace: gloo-mesh
     phase:
       postAuthz:
         priority: 1

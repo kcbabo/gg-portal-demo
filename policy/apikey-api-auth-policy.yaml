@@ -11,7 +11,7 @@ spec:
   config:
     server:
       name: ext-auth-server
-      namespace: gloo-mesh-addons
+      namespace: gloo-mesh
       cluster: gg-demo-single
     glooAuth:
       configs:
