@@ -1,0 +1,18 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: ApiSchemaDiscovery
+metadata:
+  name: tracks-rest-api-1-1-service-schema-discovery
+  namespace: tracks
+spec:
+  openapi:
+    fetchEndpoint:
+      url: "https://raw.githubusercontent.com/DuncanDoyle/gp-portal-tracks-api-1.1-schema/main/swagger-1.1.json"
+  servedBy:
+  - destinationSelector:
+      kind: SERVICE
+      port:
+        number: 5000
+      selector:
+        cluster: gg-demo-single
+        name: tracks-rest-api-1-1
+        namespace: tracks
