@@ -2,7 +2,7 @@ apiVersion: apimanagement.gloo.solo.io/v2
 kind: Portal
 metadata:
   name: developer-portal
-  namespace: gloo-mesh-addons
+  namespace: gloo-mesh
 spec:
   visibility:
     public: true
