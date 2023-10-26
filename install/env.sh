@@ -1,10 +1,16 @@
 #!/bin/bash
 
-export GLOO_VERSION=2.4.3
-export DEV_VERSION=false
-# export GLOO_VERSION=2.4.0-2023-09-07-v2.4.x-portal-regex-matching-experimental-fa98dca14
-# export DEV_VERSION=true
-export ISTIO_REVISION=1-18-3
+# export GLOO_VERSION=2.4.3
+# export DEV_VERSION=false
+# export ISTIO_REVISION=1-18-3
+
+# export GLOO_VERSION=2.5.0-beta1
+# export DEV_VERSION=false
+# export ISTIO_REVISION=1-18-3
+
+export GLOO_VERSION=2.5.0-beta1-2023-10-25-main-ba1c02c66
+export DEV_VERSION=true
+export ISTIO_REVISION=1-19-1
 
 export CLUSTER_NAME=gg-demo-single
 export CLUSTER_CTX=cluster1
