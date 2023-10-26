@@ -3,7 +3,6 @@
 set +x -e
 source ./env.sh
 
-export PORTAL_CLIENT_ID=portal-client
 export KEYCLOAK_URL=http://$KEYCLOAK_HOST
 echo "Keycloak URL: $KEYCLOAK_URL"
 export APP_URL=http://$PORTAL_HOST
@@ -15,7 +14,11 @@ export KEYCLOAK_TOKEN=$(curl -k -d "client_id=admin-cli" -d "username=admin" -d 
 
 [[ -z "$KEYCLOAK_TOKEN" ]] && { echo "Failed to get Keycloak token - check KEYCLOAK_URL and KC_ADMIN_PASS"; exit 1;}
 
+
+################################################ Portal Client: portal-client ################################################
 # Register the portal-client
+export PORTAL_CLIENT_ID=portal-client
+
 CREATE_PORTAL_CLIENT_JSON=$(cat <<EOM
 {
   "clientId": "$PORTAL_CLIENT_ID"
@@ -79,6 +82,9 @@ EOM
 )
 curl -k -X POST -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -H "Content-Type: application/json" -d "$CONFIGURE_GROUP_CLAIM_IN_JWT_JSON" $KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}/protocol-mappers/models
 
+
+################################################ User One: user1@example.com ################################################
+
 # Create first user        
 CREATE_USER_ONE_JSON=$(cat <<EOM
 {
@@ -100,6 +106,9 @@ EOM
 )
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X POST -H "Content-Type: application/json" -d "$CREATE_USER_ONE_JSON" $KEYCLOAK_URL/admin/realms/master/users
 
+
+################################################ User Two: user2@solo.io ################################################
+
 # Create second user
 CREATE_USER_TWO_JSON=$(cat <<EOM
 {
@@ -120,6 +129,9 @@ CREATE_USER_TWO_JSON=$(cat <<EOM
 EOM
 )
 curl -k -X POST -H "Authorization: Bearer ${KEYCLOAK_TOKEN}"  -H "Content-Type: application/json" -d "$CREATE_USER_TWO_JSON" $KEYCLOAK_URL/admin/realms/master/users
+
+
+################################################ Portal Service Account: portal-sa ################################################
 
 # Register Portal Service Account Client
 export PORTAL_SA_CLIENT_ID=portal-sa
@@ -196,7 +208,7 @@ curl -k -X POST -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -H "Content-Type: a
 # sleep 2
 
 # Retrieve the user-id of the user we've just created.
-export userResponse=$(curl -k -X GET -H "Accept:application/json" -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" ${KEYCLOAK_URL}/admin/realms/master/users?username=service-account-${KEYCLOAK_SA_CLIENT_ID}&exact=true)
+export userResponse=$(curl -k -X GET -H "Accept:application/json" -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" ${KEYCLOAK_URL}/admin/realms/master/users?username=service-account-${PORTAL_SA_CLIENT_ID}&exact=true)
 export userid=$(echo $userResponse | jq -r '.[0].id')
 # Set the extra group attribute on the user.
 
@@ -211,6 +223,9 @@ CONFIGURE_GROUP_ATTRIBUTE_ON_USER_JSON=$(cat <<EOM
 EOM
 )
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d "$CONFIGURE_GROUP_ATTRIBUTE_ON_USER_JSON" $KEYCLOAK_URL/admin/realms/master/users/$userid
+
+
+################################################ Parnter Portal Client Account: partner-portal-sa ################################################
 
 #### Creating a second OIDC Client for another portal.
 
