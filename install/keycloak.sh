@@ -15,6 +15,32 @@ export KEYCLOAK_TOKEN=$(curl -k -d "client_id=admin-cli" -d "username=admin" -d 
 [[ -z "$KEYCLOAK_TOKEN" ]] && { echo "Failed to get Keycloak token - check KEYCLOAK_URL and KC_ADMIN_PASS"; exit 1;}
 
 
+################################################ Scopes: API Product scopes. ################################################
+
+## declare an array variable
+declare -a API_PRODUCTS=("Catstronauts" "Petstore")
+
+## now loop through the above array
+for API_PRODUCT in "${API_PRODUCTS[@]}"
+do
+  echo "Registering scope for API-Product: $API_PRODUCT"
+  API_PRODUCT_SCOPE_JSON=$(cat <<- EOM
+  {
+    "name": "$API_PRODUCT",
+    "description": "Adds Tracks API to the product claims",
+    "protocol": "openid-connect",
+    "attributes": {
+      "include.in.token.scope": "true",
+      "display.on.consent.screen": "true",
+      "gui.order": "",
+      "consent.screen.text": ""
+    }
+  }
+EOM
+  )
+  curl -k -X POST -H "Authorization: Bearer $KEYCLOAK_TOKEN" -H "Content-Type: application/json" -d "$API_PRODUCT_SCOPE_JSON" $KEYCLOAK_URL/admin/realms/master/client-scopes
+done
+
 ################################################ Portal Client: portal-client ################################################
 # Register the portal-client
 export PORTAL_CLIENT_ID=portal-client
@@ -97,8 +123,8 @@ CREATE_USER_ONE_JSON=$(cat <<EOM
   "credentials": [
     {
       "type": "password", 
-      "value": "password", "
-      temporary": false
+      "value": "password",
+      "temporary": false
     }
   ]
 }
@@ -224,6 +250,11 @@ EOM
 )
 curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT -H "Content-Type: application/json" -d "$CONFIGURE_GROUP_ATTRIBUTE_ON_USER_JSON" $KEYCLOAK_URL/admin/realms/master/users/$userid
 
+# Add the Catstronauts API-Product Scope
+# TODO: there must be a way to select just a single scope and fetch it's ID ....
+CLIENT_SCOPE_ID=$(curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" $KEYCLOAK_URL/admin/realms/master/client-scopes | jq -r ".[] | select(.name==\"Catstronauts\") | .id") 
+
+curl -k -H "Authorization: Bearer ${KEYCLOAK_TOKEN}" -X PUT "$KEYCLOAK_URL/admin/realms/master/clients/${REG_ID}/default-client-scopes/$CLIENT_SCOPE_ID"
 
 ################################################ Parnter Portal Client Account: partner-portal-sa ################################################
 
