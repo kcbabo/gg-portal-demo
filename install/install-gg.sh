@@ -79,7 +79,8 @@ if [ "$API_ANALYTICS_ENABLED" = true ] ; then
   kubectl apply -f clickhouse-auth-secret.yaml
 fi
 
-printf "\nUsing Helm values file: $GLOO_GATEWAY_HELM_VALUES_FILE\n."
+echo "Gloo Version: $GLOO_VERSION"
+echo "Gloo Gateway Values File: $GLOO_GATEWAY_HELM_VALUES_FILE"
 
 # install GG with addons
 printf "\nInstalling Gloo Gateway ...\n"
