@@ -20,6 +20,8 @@ istioInstallations:
       enabled: true
       installations:
         - istioOperatorSpec:
+            hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
+            tag: 1.18.5-solo
             meshConfig:
               # Enable access logging to /dev/stdout
               accessLogFile: /dev/stdout
@@ -60,13 +62,18 @@ istioInstallations:
                   "usage_plan": "%DYNAMIC_METADATA(envoy.filters.http.ext_authz:usagePlan)%",
                   "custom_metadata": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:custom_metadata)%"
                 }
-          revision: auto
+          # ddoyle: Test deploying different ISTIO revision.
+          # revision: auto
+          revision: 1-18
     enabled: true
     northSouthGateways:
       - enabled: true
         installations:
-          - gatewayRevision: auto
-            istioOperatorSpec: {}
+          - istioOperatorSpec:
+              hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
+              tag: 1.18.5-solo
+            # gatewayRevision: auto
+            gatewayRevision: 1-18
         name: istio-ingressgateway
 telemetryCollector:
   config:
@@ -78,10 +85,19 @@ telemetryCollector:
       enabled: true
       storeCheckpoints: true
   enabled: true
+  extraEnvs:
+  - name: CLICKHOUSE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        key: password
+        name: clickhouse-auth
 telemetryCollectorCustomization: 
   pipelines:
     logs/istio_access_logs: 
       enabled: true
+  extraExporters:
+    clickhouse:
+      password: "${env:CLICKHOUSE_PASSWORD}"
 prometheus:
   enabled: true
 redis:
