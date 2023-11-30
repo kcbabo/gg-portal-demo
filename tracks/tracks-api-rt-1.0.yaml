@@ -26,9 +26,9 @@ spec:
       Version 1.0
 
       This Catstronauts REST API License ("License") is a legal agreement between you (either an individual or a legal entity) and solo.io ("Provider") for the use of the Catstronauts REST API ("API").
-    # custom_metadata:
-    #   pii-sensitive: "true"
-    #   api-category: "demo"
+    custom_metadata:
+      pii-sensitive: "true"
+      api-category: "demo"
   http:
   - name: tracks-api
     labels:
