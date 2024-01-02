@@ -8,7 +8,7 @@ metadata:
      api: tracks-1.1
      app: tracks-rest-api-1.1
      # uncomment if you want to hide this API from the portal
-    #  portal-visibility: private
+     portal-visibility: private
 spec:
   portalMetadata:
     apiProductId: Catstronauts
@@ -26,7 +26,7 @@ spec:
       Version 1.0
 
       This Catstronauts REST API License ("License") is a legal agreement between you (either an individual or a legal entity) and solo.io ("Provider") for the use of the Catstronauts REST API ("API").
-    custom_metadata:
+    customMetadata:
       pii-sensitive: "true"
       api-category: "demo"
   http:
@@ -40,8 +40,16 @@ spec:
     forwardTo:
       pathRewrite: /
       destinations:
-      - ref:
-          name: tracks-rest-api-1-1
-          namespace: tracks
+      # - ref:
+      #     name: tracks-rest-api-1-1
+      #     namespace: tracks
+      #   port:
+      #     number: 5000
+      - kind: VIRTUAL_DESTINATION
         port:
           number: 5000
+        ref:
+          name: tracks-rest-api-1-1-vd
+          namespace: tracks
+          cluster: gg-demo-single
+        
