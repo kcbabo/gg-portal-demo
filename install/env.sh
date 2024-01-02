@@ -8,9 +8,13 @@
 # export DEV_VERSION=false
 # export ISTIO_REVISION=1-19-3
 
-export GLOO_VERSION=2.5.0-rc1
+# export GLOO_VERSION=2.5.0-rc1
+# export DEV_VERSION=false
+# export ISTIO_REVISION=1-19-3
+
+export GLOO_VERSION=2.5.0-rc2
 export DEV_VERSION=false
-export ISTIO_REVISION=1-19-3
+export ISTIO_REVISION=1-20-1-patch0
 
 # export GLOO_VERSION=2.5.0-beta2-2023-11-16-main-221edb8e1e
 # export DEV_VERSION=true
