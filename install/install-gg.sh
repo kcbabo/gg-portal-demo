@@ -127,6 +127,7 @@ spec:
         number: 80
       allowedRouteTables:
         - host: api.example.com
+        - host: graphql.api.example.com
         - host: developer.example.com
         - host: developer.partner.example.com
         - host: keycloak.example.com
