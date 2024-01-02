@@ -12,7 +12,9 @@ glooMgmtServer:
   serviceType: ClusterIP
   registerCluster: true
   enabled: true
-  createGlobalWorkspace: true
+  # ddoyle: Disabling this to test different workspace setups.
+  createGlobalWorkspace: false
+  # createGlobalWorkspace: true
 glooUi:
   enabled: true
 istioInstallations:
@@ -22,8 +24,8 @@ istioInstallations:
         - istioOperatorSpec:
             # hub: us-docker.pkg.dev/gloo-mesh/istio-a7d0a87b8a81
             # tag: 1.17.8-solo
-            hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
-            tag: 1.18.5-solo
+            # hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
+            # tag: 1.18.5-solo
             meshConfig:
               # Enable access logging to /dev/stdout
               accessLogFile: /dev/stdout
@@ -65,19 +67,20 @@ istioInstallations:
                   "custom_metadata": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:custom_metadata)%"
                 }
           # ddoyle: Test deploying different ISTIO revision.
-          # revision: auto
-          revision: 1-18
+          revision: auto
+          # revision: 1-18
     enabled: true
     northSouthGateways:
       - enabled: true
         installations:
-          - istioOperatorSpec:
-              # hub: us-docker.pkg.dev/gloo-mesh/istio-a7d0a87b8a81
-              # tag: 1.17.8-solo
-              hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
-              tag: 1.18.5-solo
-            gatewayRevision: 1-18
-            # gatewayRevision: auto
+          # - istioOperatorSpec:
+          #     # hub: us-docker.pkg.dev/gloo-mesh/istio-a7d0a87b8a81
+          #     # tag: 1.17.8-solo
+          #     hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
+          #     tag: 1.18.5-solo
+          #   gatewayRevision: 1-18
+          - istioOperatorSpec: {}
+            gatewayRevision: auto
         name: istio-ingressgateway
 telemetryCollector:
   config:

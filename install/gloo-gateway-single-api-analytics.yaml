@@ -12,7 +12,9 @@ glooMgmtServer:
   serviceType: ClusterIP
   registerCluster: true
   enabled: true
-  createGlobalWorkspace: true
+  # ddoyle: Disabling this to test different workspace setups.
+  createGlobalWorkspace: false
+  # createGlobalWorkspace: true
 glooUi:
   enabled: true
 istioInstallations:
@@ -20,8 +22,8 @@ istioInstallations:
       enabled: true
       installations:
         - istioOperatorSpec:
-            hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
-            tag: 1.18.5-solo
+            # hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
+            # tag: 1.18.5-solo
             meshConfig:
               # Enable access logging to /dev/stdout
               accessLogFile: /dev/stdout
@@ -63,17 +65,18 @@ istioInstallations:
                   "custom_metadata": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:custom_metadata)%"
                 }
           # ddoyle: Test deploying different ISTIO revision.
-          # revision: auto
-          revision: 1-18
+          revision: auto
+          # revision: 1-18
     enabled: true
     northSouthGateways:
       - enabled: true
         installations:
-          - istioOperatorSpec:
-              hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
-              tag: 1.18.5-solo
-            # gatewayRevision: auto
-            gatewayRevision: 1-18
+          # - istioOperatorSpec:
+          #     hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
+          #     tag: 1.18.5-solo
+          #   gatewayRevision: 1-18
+          - istioOperatorSpec: {}
+            gatewayRevision: auto
         name: istio-ingressgateway
 telemetryCollector:
   config:
@@ -93,11 +96,21 @@ telemetryCollector:
         name: clickhouse-auth
 telemetryCollectorCustomization: 
   pipelines:
-    logs/istio_access_logs: 
+    # logs/istio_access_logs: 
+    logs/portal: 
       enabled: true
   extraExporters:
     clickhouse:
       password: "${env:CLICKHOUSE_PASSWORD}"
+  # # ddoyle: the default pipeline for logs/istio_access_logs no longer exists, so need to create it like this.
+  # extraPipelines:
+  #   logs/istio_access_logs:
+  #     receivers:
+  #     - filelog/access_logs
+  #     processors:
+  #     - batch/logs
+  #     exporters:
+  #     - clickhouse
 prometheus:
   enabled: true
 redis:
