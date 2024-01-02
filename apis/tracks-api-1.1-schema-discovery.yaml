@@ -3,6 +3,9 @@ kind: ApiSchemaDiscovery
 metadata:
   name: tracks-rest-api-1-1-service-schema-discovery
   namespace: tracks
+  labels:
+    # Test to see if this label is included in created ApiDoc ...
+    app: my-cool-app
 spec:
   openapi:
     fetchEndpoint:
@@ -16,3 +19,14 @@ spec:
         cluster: gg-demo-single
         name: tracks-rest-api-1-1
         namespace: tracks
+  ######################################
+  # By using a VirtualDestination in the destinationSelector, we can use different ApiDocs for the same backing K8S Service by simply creating different
+  # multiple virtual destinations for the same service.
+  # - destinationSelector:
+  #     kind: VIRTUAL_DESTINATION
+  #     port:
+  #       number: 5000
+  #     selector:
+  #       cluster: gg-demo-single
+  #       name: tracks-rest-api-1-1-vd
+  #       namespace: tracks
