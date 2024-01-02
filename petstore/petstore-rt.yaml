@@ -26,7 +26,7 @@ spec:
       destinations:
       - ref:
           name: pets-rest-api
-          namespace: default
+          namespace: petstore
         port:
           number: 5000
   # - name: users-api
@@ -37,7 +37,7 @@ spec:
   #     destinations:
   #     - ref:
   #         name: users-rest-api
-  #         namespace: default
+  #         namespace: petstore
   #       port:
   #         number: 5000
   # - name: store-api
@@ -48,6 +48,6 @@ spec:
   #     destinations:
   #     - ref:
   #         name: store-rest-api
-  #         namespace: default
+  #         namespace: petstore
   #       port:
   #         number: 5000

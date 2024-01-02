@@ -4,13 +4,17 @@
 # export DEV_VERSION=false
 # export ISTIO_REVISION=1-18-3
 
-# export GLOO_VERSION=2.5.0-beta1
+# export GLOO_VERSION=2.5.0-beta3
 # export DEV_VERSION=false
-# export ISTIO_REVISION=1-18-3
+# export ISTIO_REVISION=1-19-3
 
-export GLOO_VERSION=2.5.0-beta1-2023-10-25-main-ba1c02c66
-export DEV_VERSION=true
-export ISTIO_REVISION=1-19-1
+export GLOO_VERSION=2.5.0-rc1
+export DEV_VERSION=false
+export ISTIO_REVISION=1-19-3
+
+# export GLOO_VERSION=2.5.0-beta2-2023-11-16-main-221edb8e1e
+# export DEV_VERSION=true
+# export ISTIO_REVISION=1-19-3
 
 export CLUSTER_NAME=gg-demo-single
 export CLUSTER_CTX=cluster1
