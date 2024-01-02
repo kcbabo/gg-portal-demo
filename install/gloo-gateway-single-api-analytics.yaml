@@ -96,21 +96,11 @@ telemetryCollector:
         name: clickhouse-auth
 telemetryCollectorCustomization: 
   pipelines:
-    # logs/istio_access_logs: 
     logs/portal: 
       enabled: true
   extraExporters:
     clickhouse:
       password: "${env:CLICKHOUSE_PASSWORD}"
-  # # ddoyle: the default pipeline for logs/istio_access_logs no longer exists, so need to create it like this.
-  # extraPipelines:
-  #   logs/istio_access_logs:
-  #     receivers:
-  #     - filelog/access_logs
-  #     processors:
-  #     - batch/logs
-  #     exporters:
-  #     - clickhouse
 prometheus:
   enabled: true
 redis:
