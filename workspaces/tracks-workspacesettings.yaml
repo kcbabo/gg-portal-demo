@@ -1,0 +1,27 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: tracks
+  namespace: tracks
+spec:
+  importFrom: 
+  # ddoyle: not sure what we would need to import from the gateways workspace ....
+  # - workspaces:
+  #   - name: gateways 
+  #   resources:
+  #   - kind: SERVICE
+  #   # - kind: ALL
+  exportTo:
+  - workspaces:
+    - name: gateways
+    resources:
+    - kind: SERVICE
+      labels:
+        app: tracks-rest-api-1.0
+    - kind: SERVICE 
+      labels:
+        app: tracks-rest-api-1.1
+    - kind: API_DOC
+    # - kind: ALL
+    #   # labels:
+    #   #   expose: "true"

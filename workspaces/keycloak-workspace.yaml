@@ -1,0 +1,15 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: keycloak
+  namespace: gloo-mesh
+  labels:
+    allow_ingress: "true" 
+spec:
+  workloadClusters:
+  - name: gg-demo-single
+    namespaces:
+    - name: keycloak
+  # - name: cluster2
+  #   namespaces:
+  #   - name: bookinfo-frontends - name: bookinfo-backends
