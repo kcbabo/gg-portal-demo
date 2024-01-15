@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dynamic-rate-limiting-opa-cm
+  namespace: default
+data:
+  policy.rego: |-
+    package test
+      import future.keywords.if
+      
+      default allow = false
+    
+      apiKeyUuid := ["c81e9ef1-7950-4d05-afca-21e11c21a4ca", ""]
+
+      # allow if {
+      #   input.http_request.headers["api-key"] = "apikey1"
+      # }
+
+      # http_status := 200 if {
+      #   allow
+      # }
+      # http_status := 441 if {
+      #   not allow
+      # }
+      default disable_dynamic_rate_limits = false
+      # disable_dynamic_rate_limits if {
+      #   input.http_request.headers["disable-dynamic-rl"] = "true"
+      # }
+      # dynamic_metadata["usagePlan"] := "silver"
+      # dynamic_metadata["userId"] := "user1"
+      
+      # Trying to fetch something from the API-Key data which we can use in OPA ......
+      # apiKeyUuid := ["c81e9ef1-7950-4d05-afca-21e11c21a4ca"]
+
+      dynamic_metadata["rateLimit"] := {
+          "requests_per_unit": 7,
+          "unit": "MINUTE"
+      } if not disable_dynamic_rate_limits
+      result["dynamic_metadata"] := dynamic_metadata
+      # allow/allowed
+      result["allow"] := allow
+      # ddoyle: HTTP status should be controlled by ExtAuth and RateLimit, not by this policy (IMO)
+      # result["http_status"] := http_status
+      result["headers"]:= {
+        "x-validated-by": "opa-dynamic-rl-checkpoint"
+      }
+      result["response_headers_to_add"]:= {
+        "x-client-only": "visible"
+      }
+      # result["request_headers_to_remove"]:= ["api-key"]
+      # The body is only set when the request is denied by OPA.
+      result["body"] := "Request does not have valid API key, or exceeded the rate limit."
+      
