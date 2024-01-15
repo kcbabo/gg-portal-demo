@@ -11,6 +11,7 @@ spec:
         allow_ingress: "true"
     resources:
     - kind: SERVICE
+    - kind: VIRTUAL_DESTINATION
     - kind: API_DOC
     - kind: ALL
       labels:

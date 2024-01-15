@@ -11,22 +11,22 @@ spec:
     fetchEndpoint:
       url: "https://raw.githubusercontent.com/DuncanDoyle/gp-portal-tracks-api-1.1-schema/main/swagger-1.1.json"
   servedBy:
-  - destinationSelector:
-      kind: SERVICE
-      port:
-        number: 5000
-      selector:
-        cluster: gg-demo-single
-        name: tracks-rest-api-1-1
-        namespace: tracks
-  ######################################
-  # By using a VirtualDestination in the destinationSelector, we can use different ApiDocs for the same backing K8S Service by simply creating different
-  # multiple virtual destinations for the same service.
   # - destinationSelector:
-  #     kind: VIRTUAL_DESTINATION
+  #     kind: SERVICE
   #     port:
   #       number: 5000
   #     selector:
   #       cluster: gg-demo-single
-  #       name: tracks-rest-api-1-1-vd
+  #       name: tracks-rest-api-1-1
   #       namespace: tracks
+  ######################################
+  # By using a VirtualDestination in the destinationSelector, we can use different ApiDocs for the same backing K8S Service by simply creating different
+  # multiple virtual destinations for the same service.
+  - destinationSelector:
+      kind: VIRTUAL_DESTINATION
+      port:
+        number: 5000
+      selector:
+        cluster: gg-demo-single
+        name: tracks-rest-api-1-1-vd
+        namespace: tracks

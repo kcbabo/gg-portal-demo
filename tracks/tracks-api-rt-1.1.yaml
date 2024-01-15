@@ -30,7 +30,7 @@ spec:
       pii-sensitive: "true"
       api-category: "demo"
   http:
-  - name: tracks-api
+  - name: tracks-api-1.1
     labels:
       cors-policy: api
       usagePlans: dev-portal
@@ -40,16 +40,17 @@ spec:
     forwardTo:
       pathRewrite: /
       destinations:
-      - ref:
-          name: tracks-rest-api-1-1
-          namespace: tracks
-        port:
-          number: 5000
-      # - kind: VIRTUAL_DESTINATION
+      # - ref:
+      #     name: tracks-rest-api-1-1
+      #     namespace: tracks
       #   port:
       #     number: 5000
-      #   ref:
-      #     name: tracks-rest-api-1-1-vd
-      #     namespace: tracks
-      #     cluster: gg-demo-single
+      - kind: VIRTUAL_DESTINATION
+        ref:
+          name: tracks-rest-api-1-1-vd
+          namespace: tracks
+          cluster: gg-demo-single
+        port:
+          number: 5000
+        
         

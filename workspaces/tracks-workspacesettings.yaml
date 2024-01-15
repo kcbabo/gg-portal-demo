@@ -21,6 +21,9 @@ spec:
     - kind: SERVICE 
       labels:
         app: tracks-rest-api-1.1
+    - kind: VIRTUAL_DESTINATION
+      labels:
+        app: tracks-rest-api-1.1
     - kind: API_DOC
     # - kind: ALL
     #   # labels:
