@@ -17,13 +17,13 @@ spec:
   apis:
     - labels:
         portal: dev-portal
-  # usagePlans:
-  #    - name: bronze
-  #      displayName: "Bronze Plan"
-  #      description: "A basic usage plan"
-  #    - name: silver
-  #      description: "A better usage plan"
-  #    - name: gold
-  #      description: "The best usage plan!"
-  #    - name: platinum
-  #      description: "The ultimate usage plan!"
+  usagePlans:
+     - name: bronze
+       displayName: "Bronze Plan"
+       description: "A basic usage plan"
+     - name: silver
+       description: "A better usage plan"
+     - name: gold
+       description: "The best usage plan!"
+     - name: platinum
+       description: "The ultimate usage plan!"
