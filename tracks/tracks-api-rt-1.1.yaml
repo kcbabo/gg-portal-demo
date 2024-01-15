@@ -40,16 +40,16 @@ spec:
     forwardTo:
       pathRewrite: /
       destinations:
-      # - ref:
-      #     name: tracks-rest-api-1-1
-      #     namespace: tracks
-      #   port:
-      #     number: 5000
-      - kind: VIRTUAL_DESTINATION
+      - ref:
+          name: tracks-rest-api-1-1
+          namespace: tracks
         port:
           number: 5000
-        ref:
-          name: tracks-rest-api-1-1-vd
-          namespace: tracks
-          cluster: gg-demo-single
+      # - kind: VIRTUAL_DESTINATION
+      #   port:
+      #     number: 5000
+      #   ref:
+      #     name: tracks-rest-api-1-1-vd
+      #     namespace: tracks
+      #     cluster: gg-demo-single
         
