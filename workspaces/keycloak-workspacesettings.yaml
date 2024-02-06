@@ -1,0 +1,23 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: keycloak
+  namespace: keycloak
+spec:
+  importFrom: 
+  # ddoyle: not sure what we would need to import from the gateways workspace ....
+  # - workspaces:
+  #   - name: gateways 
+  #   resources:
+  #   - kind: SERVICE
+  #   # - kind: ALL
+  exportTo:
+  - workspaces:
+    - name: gateways
+    resources:
+    - kind: SERVICE
+      labels:
+        app: keycloak
+    # - kind: ALL
+    #   # labels:
+    #   #   expose: "true"

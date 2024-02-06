@@ -14,7 +14,7 @@ spec:
       number: 8080
     ref:
       name: gloo-mesh-portal-server
-      namespace: gloo-mesh-addons
+      namespace: gloo-mesh
       cluster: gg-demo-single
   http:
     

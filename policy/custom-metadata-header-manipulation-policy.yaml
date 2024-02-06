@@ -1,0 +1,14 @@
+apiVersion: trafficcontrol.policy.gloo.solo.io/v2
+kind: HeaderManipulationPolicy
+metadata:
+  name: custom-metadata-header
+  namespace: gloo-mesh-gateways
+spec:
+  applyToRoutes:
+  - route:
+      labels:
+        metadata: headers
+  config:
+    appendRequestHeaders:
+      x-apiproduct: "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:api_product_id)%"
+      x-pii-sensitive: "%DYNAMIC_METADATA(io.solo.gloo.apimanagement.custom_metadata:pii-sensitive)%"

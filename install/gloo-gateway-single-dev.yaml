@@ -43,6 +43,8 @@ extAuthService:
         db: 0
       # Replace with a random string to use to generate hash values for other keys
       secretKey: "ThisIsSecret"
+    image:
+      registry: gcr.io/gloo-mesh
 glooPortalServer:
   enabled: true
   apiKeyStorage:
@@ -56,3 +58,6 @@ glooPortalServer:
     secretKey: "ThisIsSecret"
 rateLimiter:
   enabled: true
+  rateLimiter:
+    image:
+      registry: gcr.io/gloo-mesh

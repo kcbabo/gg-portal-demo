@@ -10,24 +10,63 @@ spec:
   - name: istio-ingressgateway
     namespace: gloo-mesh-gateways
   http:
-  - matchers:
+  - name: tracks-1.0
+    labels:
+      usagePlans: dev-portal
+    matchers:
     - uri:
         prefix: /trackapi/v1.0
     delegate:
       routeTables:
         - labels:
             api: tracks-1.0
-  - matchers:
-    - uri:
-        prefix: /trackapi/v1.1
-    delegate:
-      routeTables:
-        - labels:
-            api: tracks-1.1
-  # - matchers:
+  # - name: tracks-1.1
+  #   matchers:
+  #   - uri:
+  #       prefix: /trackapi/v1.1
+  #   delegate:
+  #     routeTables:
+  #       - labels:
+  #           api: tracks-1.1
+  # - name: petstore
+  #   matchers:
   #   - uri:
   #       prefix: /petstore
   #   delegate:
   #     routeTables:
   #       - labels:
   #           api: petstore
+  # - name: httpbin
+  #   labels:
+  #     usagePlans: dev-portal
+  #     route: httpbin
+  #   matchers:
+  #   - uri:
+  #       prefix: /httpbin/
+  #   forwardTo:
+  #     pathRewrite: /
+  #     destinations:
+  #     - ref:
+  #         name: httpbin
+  #         namespace: httpbin
+  #         cluster: gg-demo-single
+  #       port:
+  #         number: 8000
+  # - name: mock-api
+  #   labels:
+  #     cors-policy: api
+  #     metadata: headers
+  #     route: mock
+  #     usagePlans: dev-portal
+  #   matchers:
+  #   - uri:
+  #       prefix: /mock/
+  #   # Figure out if we can have a direct response here, when we also specify a forwardTo (cause we need the stitched doc).
+  #   forwardTo:
+  #     pathRewrite: /
+  #     destinations:
+  #     - ref:
+  #         name: mock-api-service
+  #         namespace: mocks
+  #       port:
+  #         number: 8080

@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oauth-scope-apiproduct-opa-cm
+  namespace: default
+data:
+  policy.rego: |-
+    package test
+
+    default allow = false
+
+    allow {
+      # Get the accessed ApiProductId from the metadata
+      filter_metadata := input.check_request.attributes.metadata_context.filter_metadata
+      apimanagement_metadata := filter_metadata["io.solo.gloo.apimanagement"]
+      api_product_id := apimanagement_metadata["api_product_id"]
+      
+      # Get the scopes from the access-token
+      scopes := split(input.state.jwtAccessToken.scope, " ")
+      scope := scopes[_]
+      
+      # Ensure apiproduct and scopes are not empty
+      api_product_id != ""
+      scope != ""
+
+      # Validate that we have a scope for this API Product
+      scope == api_product_id
+    }

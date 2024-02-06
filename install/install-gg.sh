@@ -63,15 +63,24 @@ else
     --create-namespace 
 fi
 
-GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single.yaml
-
-if [ "$API_ANALYTICS_ENABLED" = true ] ; then
-  GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-api-analytics.yaml
-  printf "\nInstalling Clickhouse password authentication secret.\n"
-  kubectl apply -f clickhouse-auth-secret.yaml
+if [ "$DEV_VERSION" = false ] ; then
+  GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single.yaml
+else
+  GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-dev.yaml
 fi
 
-printf "\nUsing Helm values file: $GLOO_GATEWAY_HELM_VALUES_FILE\n."
+if [ "$API_ANALYTICS_ENABLED" = true ] ; then
+  if [ "$DEV_VERSION" = false ] ; then
+    GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-api-analytics.yaml
+  else
+    GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-api-analytics-dev.yaml
+  fi
+  printf "\nInstalling Clickhouse password authentication secret.\n"
+  kubectl apply -f ../misc/clickhouse-auth-secret.yaml
+fi
+
+echo "Gloo Version: $GLOO_VERSION"
+echo "Gloo Gateway Values File: $GLOO_GATEWAY_HELM_VALUES_FILE"
 
 # install GG with addons
 printf "\nInstalling Gloo Gateway ...\n"
@@ -118,6 +127,7 @@ spec:
         number: 80
       allowedRouteTables:
         - host: api.example.com
+        - host: graphql.api.example.com
         - host: developer.example.com
         - host: developer.partner.example.com
         - host: keycloak.example.com

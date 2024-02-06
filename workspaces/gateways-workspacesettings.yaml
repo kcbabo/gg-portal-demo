@@ -1,0 +1,26 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: gateways
+  namespace: gloo-mesh-gateways
+spec:
+  # Import from all workspaces labeled "allow_ingress=true", all serrvices and all other resources (RouteTables, VirtualDestinations) that are labeled "expose=true".
+  importFrom: 
+  - workspaces: 
+    - selector:
+        allow_ingress: "true"
+    resources:
+    - kind: SERVICE
+    - kind: VIRTUAL_DESTINATION
+    - kind: API_DOC
+    - kind: ALL
+      labels:
+        expose: "true"
+  # ddoyle: Don't think we actually need to export anything from the gateways workspace ...
+  # exportTo:
+  # - workspaces:
+  #   - selector: 
+  #       allow_ingress: "true"
+  #   resources:
+  #   - kind: SERVICE
+    

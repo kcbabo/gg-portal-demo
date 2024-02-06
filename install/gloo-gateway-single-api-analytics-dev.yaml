@@ -22,6 +22,8 @@ istioInstallations:
       enabled: true
       installations:
         - istioOperatorSpec:
+            # hub: us-docker.pkg.dev/gloo-mesh/istio-a7d0a87b8a81
+            # tag: 1.17.8-solo
             # hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
             # tag: 1.18.5-solo
             meshConfig:
@@ -72,6 +74,8 @@ istioInstallations:
       - enabled: true
         installations:
           # - istioOperatorSpec:
+          #     # hub: us-docker.pkg.dev/gloo-mesh/istio-a7d0a87b8a81
+          #     # tag: 1.17.8-solo
           #     hub: us-docker.pkg.dev/gloo-mesh/istio-bfdc38fe20c3
           #     tag: 1.18.5-solo
           #   gatewayRevision: 1-18
@@ -96,7 +100,7 @@ telemetryCollector:
         name: clickhouse-auth
 telemetryCollectorCustomization: 
   pipelines:
-    logs/portal: 
+    logs/portal:
       enabled: true
   extraExporters:
     clickhouse:
@@ -136,6 +140,8 @@ extAuthService:
         db: 0
       # Replace with a random string to use to generate hash values for other keys
       secretKey: "ThisIsSecret"
+    image:
+      registry: gcr.io/gloo-mesh
 glooPortalServer:
   enabled: true
   apiKeyStorage:
@@ -149,4 +155,7 @@ glooPortalServer:
     secretKey: "ThisIsSecret"
 rateLimiter:
   enabled: true
+  rateLimiter:
+    image:
+      registry: gcr.io/gloo-mesh
         

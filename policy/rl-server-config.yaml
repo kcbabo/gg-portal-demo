@@ -2,7 +2,7 @@ apiVersion: admin.gloo.solo.io/v2
 kind: RateLimitServerConfig
 metadata:
   name: usage-plans
-  namespace: gloo-mesh-addons
+  namespace: gloo-mesh
 spec:
   destinationServers:
   - port:
@@ -10,7 +10,7 @@ spec:
     ref:
       cluster: gg-demo-single
       name: rate-limiter
-      namespace: gloo-mesh-addons
+      namespace: gloo-mesh
   raw:
     setDescriptors:
       - simpleDescriptors:

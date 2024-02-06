@@ -4,7 +4,7 @@ metadata:
   labels:
     app: pets-rest-api
   name: pets-rest-api
-  namespace: default
+  namespace: petstore
 spec:
   selector:
     matchLabels:
@@ -28,10 +28,10 @@ metadata:
   annotations:
     gloo.solo.io/scrape-openapi-source: /swagger.json
     gloo.solo.io/scrape-openapi-retry-delay: "5s"
-    gloo.solo.io/scrape-openapi-pull-attempts: "3"
+    gloo.solo.io/scrape-openapi-pull-attempts: "10"
     gloo.solo.io/scrape-openapi-use-backoff: "true"
   name: pets-rest-api
-  namespace: default
+  namespace: petstore
   labels:
     app: pets-rest-api
 spec:
