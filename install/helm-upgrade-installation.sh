@@ -21,7 +21,7 @@ if [ "$API_ANALYTICS_ENABLED" = true ] ; then
     GLOO_GATEWAY_HELM_VALUES_FILE=gloo-gateway-single-api-analytics-dev.yaml
   fi
   printf "\nInstalling Clickhouse password authentication secret.\n"
-  kubectl apply -f clickhouse-auth-secret.yaml
+  kubectl apply -f ../misc/clickhouse-auth-secret.yaml
 fi
 
 echo "Gloo Version: $GLOO_VERSION"
