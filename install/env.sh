@@ -16,10 +16,17 @@
 # export DEV_VERSION=false
 # export ISTIO_REVISION=1-20-1-patch0
 
-export GLOO_VERSION=2.5.0
+export GLOO_VERSION=2.5.7
 export DEV_VERSION=false
-export ISTIO_REVISION=1-20-1-patch1
+export ISTIO_REVISION=1-20
 
+# export GLOO_VERSION=2.6.0-beta3
+# export DEV_VERSION=false
+# export ISTIO_REVISION=1-21
+
+# export GLOO_VERSION=2.5.6
+# export DEV_VERSION=false
+# export ISTIO_REVISION=1-20
 
 # export GLOO_VERSION=2.5.0-beta2-2023-11-16-main-221edb8e1e
 # export DEV_VERSION=true
