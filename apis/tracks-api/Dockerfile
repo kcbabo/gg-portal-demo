@@ -1,5 +1,5 @@
 # LTS release of Node
-FROM node:16
+FROM node:bookworm-slim
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install -g json-server
+RUN npm install -g json-server@0.17.4
 # If you are building your code for production
 # RUN npm ci --only=production
 
